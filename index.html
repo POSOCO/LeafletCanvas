@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+    <title>Many Points with leaflet Canvas</title>
+    <meta charset="utf-8">
+
+    <style>
+
+        #map {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            background-color: #333;
+        }
+    </style>
+
+</head>
+<body>
+<div id="map"></div>
+<link rel="stylesheet" href="leaflet.css"/>
+<script src="leaflet.js"></script>
+<script src="L.CanvasOverlay.js"></script>
+<script src="wr-geo.js" charset="utf-8"></script>
+
+<script>
+    // All the geoJSONs are copied from http://www.partners-popdev.org/wp-content/themes/original-child/vendor/Geojson/
+
+    var leafletMap = L.map('map').setView([23.09489138501664, 78.4368896484375], 7);
+    L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png")
+            .addTo(leafletMap);
+
+    var borderCanvas = L.canvasOverlay()
+            .params({stateShapes: [wrBorderGeo.features]})
+            .drawing(drawingOnCanvas)
+            .addTo(leafletMap);
+
+    //L.geoJson(statesData).addTo(leafletMap);
+
+    function drawingOnCanvas(canvasOverlay, params) {
+        var ctx = params.canvas.getContext('2d');
+        ctx.clearRect(0, 0, params.canvas.width, params.canvas.height);
+        ctx.fillStyle = "rgba(255,116,0, 0.2)";
+        for (var p = 0; p < params.options.stateShapes.length; p++) {
+            for (var i = 0; i < params.options.stateShapes[p].length; i++) {
+                if (params.options.stateShapes[p][i].geometry.type == "Polygon") {
+                    var pathPoints = params.options.stateShapes[p][i].geometry.coordinates[0];
+                    ctx.beginPath();
+                    var pt = canvasOverlay._map.latLngToContainerPoint([pathPoints[0][1], pathPoints[0][0]]);
+                    ctx.moveTo(pt.x, pt.y);
+                    for (var k = 1; k < pathPoints.length; k++) {
+                        pt = canvasOverlay._map.latLngToContainerPoint([pathPoints[k][1], pathPoints[k][0]]);
+                        ctx.lineTo(pt.x, pt.y);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (params.options.stateShapes[p][i].geometry.type == "MultiPolygon") {
+                    var polygonSet = params.options.stateShapes[p][i].geometry.coordinates;
+                    for (var l = 1; l < polygonSet.length; l++) {
+                        var pathPoints = polygonSet[l][0];
+                        ctx.beginPath();
+                        var pt = canvasOverlay._map.latLngToContainerPoint([pathPoints[0][1], pathPoints[0][0]]);
+                        ctx.moveTo(pt.x, pt.y);
+                        for (var k = 1; k < pathPoints.length; k++) {
+                            pt = canvasOverlay._map.latLngToContainerPoint([pathPoints[k][1], pathPoints[k][0]]);
+                            ctx.lineTo(pt.x, pt.y);
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+    }
+</script>
+</body>
+</html>
