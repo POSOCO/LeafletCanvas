@@ -33,12 +33,17 @@
             .drawing(drawingOnCanvas)
             .addTo(leafletMap);
 
+    var mainCanvas = L.canvasOverlay()
+            .params({stateShapes: [wrBorderGeo.features]})
+            .drawing()
+            .addTo(leafletMap);
+    borderCanvas.redraw();
     //L.geoJson(statesData).addTo(leafletMap);
 
     function drawingOnCanvas(canvasOverlay, params) {
         var ctx = params.canvas.getContext('2d');
         ctx.clearRect(0, 0, params.canvas.width, params.canvas.height);
-        ctx.fillStyle = "rgba(255,116,0, 0.2)";
+        ctx.fillStyle = "rgba(255,255,255, 0.1)";
         for (var p = 0; p < params.options.stateShapes.length; p++) {
             for (var i = 0; i < params.options.stateShapes[p].length; i++) {
                 if (params.options.stateShapes[p][i].geometry.type == "Polygon") {
@@ -68,7 +73,32 @@
                     }
                 }
             }
+            visualizeOnCanvas(canvasOverlay, params);
         }
+    }
+
+    function visualizeOnCanvas(canvasOverlay, params) {
+        if(!mainCanvas){
+            return;
+        }
+        var ctx = mainCanvas.canvas().getContext('2d');
+        ctx.clearRect(0, 0, mainCanvas.canvas().width, mainCanvas.canvas().height);
+        ctx.fillStyle = "rgba(255,116,116, 0.5)";
+        var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height).data;
+        var width = params.canvas.width;
+        var height = params.canvas.height;
+        //saving memory
+        params.canvas = null;
+        for (var x = 0; x < width/2; x++) {
+            for (var y = 0; y < height; y++) {
+                var index = 4 * (x + y * width);
+                if (imageData[index] > 0) {
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            }
+
+        }
+
     }
 </script>
 </body>
