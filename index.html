@@ -30,7 +30,7 @@
             .addTo(leafletMap);
 
     var borderCanvas = L.canvasOverlay()
-            .params({stateShapes: [wrBorderGeo.features]})
+            .params({"stateShapes": [wrBorderGeo.features], "sources": sources})
             .drawing(drawingOnCanvas)
             .addTo(leafletMap);
 
@@ -74,7 +74,8 @@
                     }
                 }
             }
-            visualizeOnCanvas(canvasOverlay, params);
+            //visualizeOnCanvas(canvasOverlay, params);
+            drawVoltageContour(canvasOverlay, params);
         }
     }
 
@@ -90,6 +91,7 @@
         var height = params.canvas.height;
         //saving memory
         params.canvas = null;
+
         for (var x = 0; x < width / 2; x++) {
             for (var y = 0; y < height; y++) {
                 var index = 4 * (x + y * width);
@@ -100,6 +102,20 @@
 
         }
 
+    }
+
+    function drawVoltageContour(canvasOverlay, params) {
+        var ctx = params.canvas.getContext('2d');
+        var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height).data;
+        ctx.clearRect(0, 0, params.canvas.width, params.canvas.height);
+        ctx.fillStyle = "rgba(255,116,116, 0.5)";
+        var width = params.canvas.width;
+        var height = params.canvas.height;
+        for (var k = 0; k < sources.length; k++) {
+            //get the pixel location and draw a circle
+            var pt = canvasOverlay._map.latLngToContainerPoint([sources[k][0], sources[k][1]]);
+
+        }
     }
 </script>
 </body>
