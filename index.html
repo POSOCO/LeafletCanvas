@@ -107,26 +107,38 @@
     function drawVoltageContour(canvasOverlay, params) {
         var ctx = params.canvas.getContext('2d');
         var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height).data;
-        //ctx.clearRect(0, 0, params.canvas.width, params.canvas.height);
-        ctx.fillStyle = "rgba(255,116,116, 0.5)";
         var width = params.canvas.width;
         var height = params.canvas.height;
         for (var k = 0; k < sources.length; k++) {
+            var intensity = sources[k][2];
+            if (intensity > 1.05) {
+                intensity = 1.05;
+            } else if (intensity < 0.95) {
+                intensity = 0.95;
+            }
+            if (intensity >= 1) {
+                ctx.fillStyle = "rgba(" + Math.floor(((intensity - 1) * 255) / 0.05) + ",0,0, 0.5)";
+            } else {
+                ctx.fillStyle = "rgba(0,0," + Math.floor(((1 - intensity) * 255) / 0.05) + ", 0.5)";
+            }
             //get the pixel location and draw a circle
             var pt = canvasOverlay._map.latLngToContainerPoint([sources[k][0], sources[k][1]]);
-			ctx.beginPath();
-			ctx.arc(pt.x,pt.y,0.5*Math.pow(2,params.zoom),0,2*Math.PI);
-			ctx.fill();
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 0.5 * Math.pow(2, params.zoom), 0, 2 * Math.PI);
+            ctx.fill();
         }
-		//now apply filter via the filter array
-		ctx.fillStyle = "rgba(255,255,255, 0.1)";
-		var logicData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height);
+        //now apply filter via the filter array
+        ctx.fillStyle = "rgba(255,255,255, 0.1)";
+        var logicData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height);
         for (var index = 0; index < imageData.length; index++) {
             if (imageData[index] <= 0) {
-                    logicData.data[index+3] = 0;
-                }
+                logicData.data[index + 3] = 0;
+            }
         }
-		ctx.putImageData(logicData,0,0);
+        //saving memory
+        imageData = null;
+
+        ctx.putImageData(logicData, 0, 0);
     }
 </script>
 </body>
