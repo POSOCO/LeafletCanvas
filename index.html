@@ -1,9 +1,10 @@
 <!doctype html>
 <html>
 <head>
-    <title>Many Points with leaflet Canvas</title>
+    <title>Leaflet Voltage Contour</title>
     <meta charset="utf-8">
-
+    <link rel="shortcut icon" type="image/ico"
+          href="https://raw.githubusercontent.com/posoco/LeafletCanvas/assets/favicon.ico"/>
     <style>
         #map {
             position: absolute;
@@ -17,6 +18,14 @@
 <body>
 <div id="map"></div>
 <link rel="stylesheet" href="libs/leaflet.css"/>
+<style>
+    .leaflet-div-icon {
+        border-radius: 50%;
+        behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+        background: rgba(0, 0, 0, 0);
+        border: 1px solid #aaa;
+    }
+</style>
 <script src="libs/leaflet.js"></script>
 <script src="libs/L.CanvasOverlay.js"></script>
 <script src="border-geos/wr-geo.js" charset="utf-8"></script>
@@ -30,6 +39,8 @@
     L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png")
             .addTo(leafletMap);
 
+    //L.geoJson(statesData).addTo(leafletMap);
+
     var borderCanvas = L.canvasOverlay()
             .params({"stateShapes": [wrBorderGeo.features], "sources": sources})
             .drawing(drawingOnCanvas)
@@ -39,8 +50,20 @@
             .params({stateShapes: [wrBorderGeo.features]})
             .drawing()
             .addTo(leafletMap);
+
+    //draw markers for sources
+    var markers = [];
+    var myIcon = L.divIcon({
+        iconSize: new L.Point(8, 8),
+        html: ''
+    });
+    for (var i = 0; i < sources.length; i++) {
+        markers.push(L.marker([sources[i][0], sources[i][1]], {icon: myIcon}).bindPopup(sources[i][5]));
+    }
+    var sourceMarkersLayer = L.layerGroup(markers);
+    sourceMarkersLayer.addTo(leafletMap);
     borderCanvas.redraw();
-    //L.geoJson(statesData).addTo(leafletMap);
+
 
     function drawingOnCanvas(canvasOverlay, params) {
         var ctx = params.canvas.getContext('2d');
