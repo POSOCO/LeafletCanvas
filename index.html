@@ -140,22 +140,19 @@
             //visualizeOnCanvas(canvasOverlay, params);
             //drawVoltageCircles(canvasOverlay, params);
             drawVoltageContour(canvasOverlay, params);
+            //drawFastVoltageContour(canvasOverlay, params);
         }
     }
 
     function visualizeOnCanvas(canvasOverlay, params) {
-        if (!mainCanvas) {
-            return;
-        }
-        var ctx = mainCanvas.canvas().getContext('2d');
-        ctx.clearRect(0, 0, mainCanvas.canvas().width, mainCanvas.canvas().height);
+        var ctx = params.canvas.getContext('2d');
         ctx.fillStyle = "rgba(255,116,116, 0.5)";
         var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height).data;
+        ctx.clearRect(0, 0, params.canvas.width, params.canvas.height);
         var width = params.canvas.width;
         var height = params.canvas.height;
         //saving memory
         params.canvas = null;
-
         for (var x = 0; x < width / 2; x++) {
             for (var y = 0; y < height; y++) {
                 var index = 4 * (x + y * width);
@@ -251,6 +248,112 @@
                     ctx.fillStyle = "rgba(" + resultColor[0] + "," + resultColor[1] + "," + resultColor[2] + ", " + transparency + ")";
                     ctx.fillRect(x, y, 1, 1);
                 }
+            }
+        }
+    }
+
+    function drawFastVoltageContour(canvasOverlay, params) {
+        var sources = [[21.6, 71.21, 1.05, "WRLDCMP.SCADA1.A0048293", 400, "AMRELI 400kV SUBSTATION, Gujrat, SUBSTN.AMRL_JTG.BUS.4B1.MES1.KVRY", "OK"]];
+        //var source = [sources[0], sources[1]];
+        var alpha = 0.8;
+        var transparency = 0.3;
+        var hotPU = 1.05;
+        var coolPU = 0.95;
+        var ctx = params.canvas.getContext('2d');
+        var width = params.canvas.width;
+        var height = params.canvas.height;
+        var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height).data;
+        ctx.clearRect(0, 0, width, height);
+        var contourData = [];
+        for (var iter = 0; iter < width * height; iter++) {
+            contourData[iter] = 1;
+        }
+        //npx = latSpan/canvasWidth; npy = lngSpan/canvasHeight; npxRatioSquare = npy*npy/(npx*npx);
+        var southEast = leafletMap.getBounds().getSouthEast();
+        var northWest = leafletMap.getBounds().getNorthWest();
+        var npx = (southEast.lng - northWest.lng) / width;
+        npx = Math.abs(npx);
+        var npy = (northWest.lat - southEast.lat) / height;
+        npy = Math.abs(npy);
+        var npxRatioSquare = (npy * npy) / (npx * npx);
+        for (var i = 0; i < sources.length; i++) {
+            //skip from the for loop if sources status is not "OK"
+            if (sources[i][6] != "OK" || sources[i][2] < 0.8) {
+                continue;
+            }
+            var vsource = sources[i][2];
+            var vsourceError = vsource - 1;
+            //calculate the source pixel point
+            var sourcePt = canvasOverlay._map.latLngToContainerPoint([sources[i][0], sources[i][1]]);
+            var xpsource = sourcePt.x;
+            var ypsource = sourcePt.y;
+            var stopYIteration = false;
+            //x should go from sourcex to sourcex+width-sourcex
+            for (var xpdest = xpsource; xpdest <= width; xpdest++) {
+                stopYIteration = false;
+                for (var ypdest = ypsource; stopYIteration == false; ypdest++) {
+                    var xpx = xpdest - xpsource;
+                    var ypx = ypdest - ypsource;
+                    if ((ypx > xpx) || (ypdest > height)) {
+                        stopYIteration = true;
+                        continue;
+                    }
+                    //i = source iterator; xpdest = x axis iterator; ypdest = y axis iterator
+                    var xCoordinates = [xpdest, xpsource - xpx, xpdest, xpsource - xpx, xpsource + ypx, xpsource - ypx, xpsource + ypx, xpsource - ypx];
+                    var yCoordinates = [ypdest, ypdest, ypsource - ypx, ypsource - ypx, ypsource + xpx, ypsource + xpx, ypsource - xpx, ypsource - xpx];
+                    var isValToAddCalculated = false;
+                    var valToAdd = 0;
+                    //First find if value needs to be calculated by checking if filter exists in any of the 8 quadrants
+                    for (var coordIter = 0; coordIter < 8; coordIter++) {
+                        var xCoord = xCoordinates[coordIter];
+                        var yCoord = yCoordinates[coordIter];
+                        if (ypx == 0 && (coordIter == 1 || coordIter == 2 || coordIter == 5 || coordIter == 7)) {
+                            continue;
+                        } else if (ypx == xpx && coordIter < 4) {
+                            continue;
+                        }
+                        if (imageData[(yCoord * width + xCoord) * 4] == 255 && xCoord >= 0 && yCoord >= 0 && xCoord <= width && yCoord <= height) {
+                            if (!isValToAddCalculated) {
+                                valToAdd = vsourceError * Math.exp(-alpha * npx * Math.sqrt(xpx * xpx + npxRatioSquare * ypx * ypx));
+                                valToAdd += 1;
+                                isValToAddCalculated = true;
+                            }
+                            /**implementing overriding contour**/
+                            var canvasPixelPU = contourData[(xCoord + yCoord * width)];
+                            if (Math.abs(valToAdd - 1) > Math.abs(canvasPixelPU - 1)) {
+                                canvasPixelPU = valToAdd;
+                            }
+                            contourData[(xCoord + yCoord * width)] = canvasPixelPU;
+                        } else {
+                            contourData[(xCoord + yCoord * width)] = null;
+                        }
+                    }
+                }
+            }
+        }
+        //now all pixel values found; bug in for loop iteration limits of xpdest
+
+        //saving memory;
+        imageData = null;
+
+        //paint the pixels
+        for (var x = 0; x < width; x++) {
+            for (var y = 0; y < height; y++) {
+                var index = x + y * width;
+                var resultantPU = contourData[index];
+                if (resultantPU == null) {
+                    continue;
+                }
+                if (resultantPU > hotPU) {
+                    resultantPU = hotPU;
+                } else if (resultantPU < coolPU) {
+                    resultantPU = coolPU;
+                }
+                //Now paint according to this error value
+                var resultantHue = 240 * ((resultantPU - coolPU) / (hotPU - coolPU));
+                var resultColor = hsvToRgb(240 - resultantHue, 1, 1);
+                ctx.fillStyle = "rgba(" + resultColor[0] + "," + resultColor[1] + "," + resultColor[2] + ", " + transparency + ")";
+                ctx.fillRect(x, y, 1, 1);
             }
         }
     }
