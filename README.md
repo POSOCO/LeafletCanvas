@@ -5,3 +5,4 @@ Data Visualization with Leaflet Library
 1. Label layer that displays the names of cities and substations should be above the visualization layer. So the layers order should be map tiles, visualization layer, label layer, marker layer
 2. Load different tiles that can load various useful information like real time weather data onto the map --done with openweathermaps(OWM)
 3. Store the tiles offline and use them
+4. Calculate source boundaries and then find the intensities to save computation time and processing

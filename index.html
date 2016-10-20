@@ -5,18 +5,121 @@
     <meta charset="utf-8">
     <link rel="shortcut icon" type="image/ico"
           href="https://raw.githubusercontent.com/POSOCO/LeafletCanvas/gh-pages/assets/favicon.ico"/>
+    <link rel="stylesheet" type="text/css" href="libs/css/font-awesome.min.css">
     <style>
+        html, body {
+            height: 100%;
+        }
+
         #map {
             position: absolute;
             height: 100%;
             width: 100%;
             background-color: #333;
         }
-    </style>
 
+        .map-container {
+            position: relative;
+            display: inline-block;
+            margin-left: 1%;
+            margin-right: 10px;
+            width: 50%;
+            height: 80%;
+            vertical-align: top;
+        }
+
+        .pagination > li {
+            display: inline;
+            margin-right: 10px;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        table, td, th {
+            border: 1px solid black;
+        }
+
+        td {
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+    </style>
 </head>
 <body>
-<div id="map"></div>
+<h1>Voltage Contour</h1>
+
+<div class="map-container">
+    <div id="map"></div>
+</div>
+
+<div class="container" ng-app="voltageSortApp" ng-controller="voltageSortController" id="voltage-report"
+     style="display: inline-block;width: 45%;vertical-align:top;">
+    <form>
+        <div class="form-group">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search Substation by name"
+                       ng-model="searchLine">
+                <label style="margin-left: 25px">Lines per Page</label>
+                <input type="number" min="1" max="1000" class="form-control" ng-model="pageSize">
+            </div>
+        </div>
+    </form>
+    <br>
+    <table>
+        <thead>
+        <tr>
+            <td>
+                <a class="sort-clicker" href="#" ng-click="sortType = 'sNo'; sortReverse = !sortReverse">
+                    SNo
+                    <span ng-show="sortType == 'sNo' && !sortReverse" class="fa fa-caret-down"></span>
+                    <span ng-show="sortType == 'sNo' && sortReverse" class="fa fa-caret-up"></span>
+                </a>
+            </td>
+            <td>
+                <a class="sort-clicker" href="#" ng-click="sortType = 'name'; sortReverse = !sortReverse">
+                    Substation
+                    <span ng-show="sortType == 'name' && !sortReverse" class="fa fa-caret-down"></span>
+                    <span ng-show="sortType == 'name' && sortReverse" class="fa fa-caret-up"></span>
+                </a>
+            </td>
+            <td>
+                <a class="sort-clicker" href="#"
+                   ng-click="sortType = 'puVoltage'; sortReverse = !sortReverse">
+                    PU
+                    <span ng-show="sortType == 'puVoltage' && !sortReverse" class="fa fa-caret-down"></span>
+                    <span ng-show="sortType == 'puVoltage' && sortReverse" class="fa fa-caret-up"></span>
+                </a>
+            </td>
+            <td>
+                <a class="sort-clicker" href="#"
+                   ng-click="sortType = 'Voltage'; sortReverse = !sortReverse">
+                    Voltage
+                    <span ng-show="sortType == 'voltage' && !sortReverse" class="fa fa-caret-down"></span>
+                    <span ng-show="sortType == 'voltage' && sortReverse" class="fa fa-caret-up"></span>
+                </a>
+            </td>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr dir-paginate="source in sources | orderBy:sortType:sortReverse | filter:searchLine | itemsPerPage:pageSize">
+            <td>{{ source.sNo }}</td>
+            <td style="font-size: 0.95em">{{ source.name }}</td>
+            <td>{{ source.voltage }}</td>
+            <td>{{ source.puVoltage }}</td>
+        </tr>
+        </tbody>
+
+    </table>
+    <dir-pagination-controls
+            max-size="5"
+            direction-links="true"
+            boundary-links="true">
+    </dir-pagination-controls>
+</div>
+</div>
 <link rel="stylesheet" href="libs/leaflet.css"/>
 <link rel="stylesheet" type="text/css" href="libs/leaflet-openweathermap.css"/>
 <style>
@@ -31,18 +134,23 @@
 <script src="libs/L.CanvasOverlay.js"></script>
 <script type="text/javascript" src="libs/leaflet-openweathermap.js"></script>
 <script src="border-geos/wr-geo.js" charset="utf-8"></script>
+<script src="libs/angular.min.js"></script>
+<script src="libs/dirPagination.js"></script>
+<script src="sources-table.js" charset="utf-8"></script>
 <script src="sources.js" charset="utf-8"></script>
 <script src="libs/rgbhsv.js" charset="utf-8"></script>
-
 <script>
     // All the geoJSONs are copied from http://www.partners-popdev.org/wp-content/themes/original-child/vendor/Geojson/
 
     //var sources = [[21.6, 71.21, 1.05, "WRLDCMP.SCADA1.A0048293", 400, "AMRELI 400kV SUBSTATION, Gujrat, SUBSTN.AMRL_JTG.BUS.4B1.MES1.KVRY", "OK"]];
+    window.setTimeout(function () {
+        angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
+    }, 500);
 
     var osmTileLayer = L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {id: 'map'});
     var mapStackTileLayer = L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png", {id: 'map'});
 
-    var leafletMap = L.map('map').setView([20.725290873994197, 78.629150390625], 6);
+    var leafletMap = L.map('map').setView([21.14599216495789, 76.343994140625], 6);
     mapStackTileLayer.addTo(leafletMap);
     //create geoJSON border by svg
     //L.geoJson(statesData).addTo(leafletMap);
@@ -99,7 +207,6 @@
     L.control.layers(baseMaps, overlayMaps).addTo(leafletMap);
 
     borderCanvasLayer.redraw();
-
 
     function drawingOnCanvas(canvasOverlay, params) {
         var ctx = params.canvas.getContext('2d');
