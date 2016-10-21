@@ -6,3 +6,4 @@ Data Visualization with Leaflet Library
 2. Load different tiles that can load various useful information like real time weather data onto the map --done with openweathermaps(OWM)
 3. Store the tiles offline and use them
 4. Calculate source boundaries till voltage error is as less as 1kV and then find the pixel intensities around the source to save computation time and processing
+5. Use source boundaries approach in the drawVoltageContour function 
