@@ -52,6 +52,9 @@
 
 <div class="map-container">
     <div id="map"></div>
+    <div style="position: absolute;display: inline-block;font-style: italic;color: #aaaaaa;z-index: 1000;width: 50%;height: 30px;bottom: 0px;">
+        <span>Refresh time - </span><span id="refresh-time">NA</span><span> milli secs</span>
+    </div>
 </div>
 
 <div class="container" ng-app="voltageSortApp" ng-controller="voltageSortController" id="voltage-report"
@@ -121,7 +124,7 @@
 </div>
 </div>
 <br>
-<span>Refresh time - </span><span id="refresh-time">NA</span>
+
 <link rel="stylesheet" href="libs/leaflet.css"/>
 <link rel="stylesheet" type="text/css" href="libs/leaflet-openweathermap.css"/>
 <style>
@@ -248,7 +251,8 @@
             }
             //visualizeOnCanvas(canvasOverlay, params);
             //drawVoltageCircles(canvasOverlay, params);
-            drawVoltageContour(canvasOverlay, params);
+            //drawVoltageContour(canvasOverlay, params);
+            drawApproxVoltageContour(canvasOverlay, params);
             //drawFastVoltageContour(canvasOverlay, params);
             //drawNewFastVoltageContour(canvasOverlay, params);
         }
@@ -340,6 +344,74 @@
                          error(x,y) = SourcePUError * e^((-α)*sqrt(x^2+y^2));
                          */
                         errorContributions[k] = sourcePUError * Math.exp(-alpha * Math.sqrt(Math.pow(sourcePtLat - canvasLatLng.lat, 2) + Math.pow(sourcePtLng - canvasLatLng.lng, 2)));
+                    }
+                    //calculate the resultant error from all contributions by considering the contribution that has the highest absolute value
+                    var resultantError = errorContributions[0];
+                    for (var p = 0; p < errorContributions.length; p++) {
+                        if (Math.abs(errorContributions[p]) > Math.abs(resultantError)) {
+                            resultantError = errorContributions[p];
+                        }
+                    }
+                    if (resultantError + 1 > hotPU) {
+                        resultantError = hotPU - 1;
+                    } else if (resultantError + 1 < coolPU) {
+                        resultantError = coolPU - 1;
+                    }
+                    //Now paint according to this error value
+                    var resultantHue = 240 * ((1 + resultantError - coolPU) / (hotPU - coolPU));
+                    var resultColor = hsvToRgb(240 - resultantHue, 1, 1);
+                    ctx.fillStyle = "rgba(" + resultColor[0] + "," + resultColor[1] + "," + resultColor[2] + ", " + transparency + ")";
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            }
+        }
+        document.getElementById("refresh-time").innerHTML = (new Date() - timeStart);
+    }
+
+    function drawApproxVoltageContour(canvasOverlay, params) {
+        var timeStart = new Date();
+        var alpha = 0.5;
+        var transparency = 0.3;
+        var hotPU = 1.05;
+        var coolPU = 0.95;
+        var ctx = params.canvas.getContext('2d');
+        var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height).data;
+        var width = params.canvas.width;
+        var height = params.canvas.height;
+
+        //npx = latSpan/canvasWidth; npy = lngSpan/canvasHeight; npxRatioSquare = npy*npy/(npx*npx);
+        var southEast = leafletMap.getBounds().getSouthEast();
+        var northWest = leafletMap.getBounds().getNorthWest();
+        var npx = (southEast.lng - northWest.lng) / width;
+        npx = Math.abs(npx);
+        var npy = (northWest.lat - southEast.lat) / height;
+        npy = Math.abs(npy);
+        var npxRatioSquare = (npy * npy) / (npx * npx);
+
+        //calculate source pixel locations
+        var sourcePixelLocations = [];
+        for (var i = 0; i < sources.length; i++) {
+            sourcePixelLocations.push(canvasOverlay._map.latLngToContainerPoint([sources[i][0], sources[i][1]]));
+        }
+
+        //for each pixel on the canvas filter...
+        for (var x = 0; x < width; x++) {
+            for (var y = 0; y < height; y++) {
+                var index = 4 * (x + y * width);
+                if (imageData[index] > 0) {
+                    //calculate the error contribution from each source and store in an array
+                    var errorContributions = [];
+                    for (var k = 0; k < sources.length; k++) {
+                        var sourcePU = sources[k][2];
+                        var sourcePUError = sourcePU - 1;
+                        var sourcePtLat = sources[k][0];
+                        var sourcePtLng = sources[k][1];
+                        /*
+                         calculate error contribution from this source
+                         error(x,y)= SourcePUError * e^(- damping factor * distance of the source from (x,y) position)
+                         error(x,y) = SourcePUError * e^((-α)*sqrt(x^2+y^2));
+                         */
+                        errorContributions[k] = sourcePUError * Math.exp(-alpha * npx * Math.sqrt(Math.pow(sourcePixelLocations[k].x - x, 2) + Math.pow(sourcePixelLocations[k].y - y, 2)));
                     }
                     //calculate the resultant error from all contributions by considering the contribution that has the highest absolute value
                     var resultantError = errorContributions[0];
