@@ -45,6 +45,45 @@
             padding-left: 2px;
             padding-right: 2px;
         }
+
+        #over_map_date {
+            position: absolute;
+            display: inline-block;
+            bottom: 50px;
+            /*
+            width: 200px;
+            height: 100px;
+            */
+            padding-right: 2px;
+            padding-left: 2px;
+            z-index: 90;
+            pointer-events: none;
+        }
+
+        #over_map {
+            position: absolute;
+            bottom: 10px;
+            right: 5px;
+            opacity: 0.5;
+            background-color: #666666;
+            /*
+            width: 200px;
+            height: 100px;
+            */
+            padding-right: 5px;
+            padding-left: 5px;
+            z-index: 1;
+            pointer-events: none;
+            /*color: red;*/
+        }
+
+        #videoCanvas {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            background-color: transparent;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -52,9 +91,13 @@
 
 <div class="map-container">
     <div id="map"></div>
+    <canvas id="videoCanvas"></canvas>
     <div style="position: absolute;display: inline-block;font-style: italic;color: #aaaaaa;z-index: 1000;width: 50%;height: 30px;bottom: 0px;">
         <span>Refresh time - </span><span id="refresh-time">NA</span><span> milli secs</span>
     </div>
+    <p id="over_map" style="font-size: 30px;color: red">00:00 Hrs</p>
+
+    <span id="over_map_date" style="font-style: italic;color: #aaaaaa">Voltage contour on xx-xx-xxxx</span>
 </div>
 
 <div class="container" ng-app="voltageSortApp" ng-controller="voltageSortController" id="voltage-report"
@@ -89,18 +132,18 @@
             </td>
             <td>
                 <a class="sort-clicker" href="#"
-                   ng-click="sortType = 'puVoltage'; sortReverse = !sortReverse">
-                    PU
-                    <span ng-show="sortType == 'puVoltage' && !sortReverse" class="fa fa-caret-down"></span>
-                    <span ng-show="sortType == 'puVoltage' && sortReverse" class="fa fa-caret-up"></span>
+                   ng-click="sortType = 'voltage'; sortReverse = !sortReverse">
+                    Voltage
+                    <span ng-show="sortType == 'voltage' && !sortReverse" class="fa fa-caret-down"></span>
+                    <span ng-show="sortType == 'voltage' && sortReverse" class="fa fa-caret-up"></span>
                 </a>
             </td>
             <td>
                 <a class="sort-clicker" href="#"
-                   ng-click="sortType = 'Voltage'; sortReverse = !sortReverse">
-                    Voltage
-                    <span ng-show="sortType == 'voltage' && !sortReverse" class="fa fa-caret-down"></span>
-                    <span ng-show="sortType == 'voltage' && sortReverse" class="fa fa-caret-up"></span>
+                   ng-click="sortType = 'puVoltage'; sortReverse = !sortReverse">
+                    PU
+                    <span ng-show="sortType == 'puVoltage' && !sortReverse" class="fa fa-caret-down"></span>
+                    <span ng-show="sortType == 'puVoltage' && sortReverse" class="fa fa-caret-up"></span>
                 </a>
             </td>
         </tr>
@@ -125,6 +168,24 @@
 </div>
 <br>
 
+<div id="controlInputs" style="margin:10px 5px 5px 10px;"><!--top right bottom left-->
+    <button onclick="startFetching()">StartFetching</button>
+    <button onclick="pauseFetching()">StopFetching</button>
+    <span style="padding-left:15px;"></span>
+    <button onclick="startFrameFetching()">StartPlayback</button>
+    <button onclick="pauseFrameFetching()">StopPlayback</button>
+    <span id="playbackStatus"></span>
+    <span style="padding-left:20px;"></span>
+    <input id="jumpToFrameInput" type="number" value="0" style="width:45px;"/>
+    <button onclick="jumpToFrameGUI()"> JumpToMinute</button>
+    <span style="padding-left:20px;"></span>
+    <input id="frameRateInput" type="number" value="1" style="width:35px;"/>
+    <button onclick="setFrameRateGUI()"> SetMinuteRate</button>
+    <br><br>
+    <span>Select the voltage files</span>
+    <input type="file" id="fileInput">
+    <br><br>
+</div>
 <link rel="stylesheet" href="libs/leaflet.css"/>
 <link rel="stylesheet" type="text/css" href="libs/leaflet-openweathermap.css"/>
 <style>
@@ -144,6 +205,14 @@
 <script src="sources-table.js" charset="utf-8"></script>
 <script src="sources.js" charset="utf-8"></script>
 <script src="libs/rgbhsv.js" charset="utf-8"></script>
+
+<script src="libs/jquery.min.js" charset="utf-8"></script>
+<script src="timeFrames.js" charset="utf-8"></script>
+<script src="libs/csvToArray.js" charset="utf-8"></script>
+<script src="CSVReader.js" charset="utf-8"></script>
+<script src="playCached.js" charset="utf-8"></script>
+<script src="playFromCSV.js" charset="utf-8"></script>
+<script src="index-csv.js" charset="utf-8"></script>
 <script>
     // All the geoJSONs are copied from http://www.partners-popdev.org/wp-content/themes/original-child/vendor/Geojson/
 
@@ -160,7 +229,7 @@
     //create geoJSON border by svg
     //L.geoJson(statesData).addTo(leafletMap);
     var borderCanvasLayer = L.canvasOverlay()
-            .params({"stateShapes": [wrBorderGeo.features], "sources": sources})
+            .params({"stateShapes": [wrBorderGeo.features]})
             .drawing(drawingOnCanvas)
             .addTo(leafletMap);
 
@@ -175,6 +244,9 @@
     }
     var sourceMarkersLayer = L.layerGroup(markers);
     sourceMarkersLayer.addTo(leafletMap);
+
+    var hotPU = 1.05;
+    var coolPU = 0.95;
 
     //Getting OpenWeatherMapOverlays
     var clouds = L.OWM.clouds({showLegend: false, opacity: 0.5});
@@ -317,7 +389,7 @@
 
     function drawVoltageContour(canvasOverlay, params) {
         var timeStart = new Date();
-        var alpha = 0.5;
+        var alpha = 1.5;
         var transparency = 0.3;
         var hotPU = 1.05;
         var coolPU = 0.95;
@@ -372,8 +444,8 @@
         var timeStart = new Date();
         var alpha = 0.5;
         var transparency = 0.3;
-        var hotPU = 1.05;
-        var coolPU = 0.95;
+        hotPU = 1.05;
+        coolPU = 0.95;
         var ctx = params.canvas.getContext('2d');
         var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height).data;
         var width = params.canvas.width;
@@ -391,9 +463,11 @@
         //calculate source pixel locations
         var sourcePixelLocations = [];
         for (var i = 0; i < sources.length; i++) {
+            if (sources[i][6] != "OK") {
+                sources[i][2] = 1;
+            }
             sourcePixelLocations.push(canvasOverlay._map.latLngToContainerPoint([sources[i][0], sources[i][1]]));
         }
-
         //for each pixel on the canvas filter...
         for (var x = 0; x < width; x++) {
             for (var y = 0; y < height; y++) {
@@ -433,6 +507,8 @@
                 }
             }
         }
+        frames_.push(params.canvas);
+        //stub
         document.getElementById("refresh-time").innerHTML = (new Date() - timeStart);
     }
 

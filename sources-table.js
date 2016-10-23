@@ -13,8 +13,8 @@ angular.module('voltageSortApp', ['angularUtils.directives.dirPagination'])
                 $scope.sources.push({
                     sNo: i + 1,
                     name: source[5],
-                    voltage: Math.round(source[2] * 100) / 100,
-                    puVoltage: Math.round(source[2] * source[4] * 100) / 100
+                    puVoltage: Math.round(source[2] * 100) / 100,
+                    voltage: Math.round(source[2] * source[4] * 100) / 100
                 });
             }
             $scope.$apply();
