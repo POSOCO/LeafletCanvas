@@ -14,7 +14,7 @@ function startFramePlaying() {
     pauseFramePlaying();
     //frameIterator_ = 0;
     console.log("Starting Frame Data Fetch", "info");
-    videoTimingVar_ = setInterval(getFromVideoFrames, 500);
+    videoTimingVar_ = setInterval(getFromVideoFrames, videoPlayInterval_);
 }
 
 //Video Timing function
