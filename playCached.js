@@ -42,3 +42,8 @@ function getFromVideoFrames() {
 function setCachePlayInterval() {
     videoPlayInterval_ = document.getElementById("cachePlayIntervalInput").value;
 }
+
+function updateVideoTime(){
+    var sliderVal = document.getElementById("videoTimeSlider").value;
+    document.getElementById("videoTimeSlider").innerHTML = times_[sliderVal];
+}
