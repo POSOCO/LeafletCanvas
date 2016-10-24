@@ -83,6 +83,7 @@ function setFrameRateGUI() {
 
 //Timing function
 function startFrameFetching() {
+    videoCanvas_.getContext("2d").clearRect(0, 0, borderCanvasLayer.canvas().width, borderCanvasLayer.canvas().height)
     frames_ = [];
     times_ = [];
     pauseFrameFetching();
@@ -111,20 +112,22 @@ function getFromFrames() {
     var frameData = timeFrames.frames[frameToFetch_];
     //MODIFY THE sources ARRAY from pointsArray
     for (var i = 0; i < frameData.length; i++) {
-        if(frameData[i] == 0){
+        if (frameData[i] == 0) {
             sources[i][2] = 1;
-        }
-        else{
-            var tempPu = frameData[i] / sources[i][4];
-            if(tempPu > hotPU){
-                tempPu = hotPU;
-            } else if(tempPu < coolPU){
-                tempPu = coolPU;
-            }
-            sources[i][2] = tempPu;
+        } else {
+            sources[i][2] = frameData[i] / sources[i][4];
         }
     }
     angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
+    for (var i = 0; i < sources.length; i++) {
+        var tempPu = sources[i][2];
+        if (tempPu > hotPU) {
+            tempPu = hotPU;
+        } else if (tempPu < coolPU) {
+            tempPu = coolPU;
+        }
+        sources[i][2] = tempPu;
+    }
     //RUN the plotting algorithm
     borderCanvasLayer.redraw();
     setIsFrameBusy(false);

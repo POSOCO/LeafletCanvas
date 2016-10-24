@@ -10,6 +10,9 @@ angular.module('voltageSortApp', ['angularUtils.directives.dirPagination'])
             $scope.sources = [];
             for (var i = 0; i < sourcesArray.length; i++) {
                 var source = sourcesArray[i];
+                if (source[6] != "OK") {
+                    continue;
+                }
                 $scope.sources.push({
                     sNo: i + 1,
                     name: source[5],

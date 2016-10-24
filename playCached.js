@@ -5,14 +5,16 @@ var times_ = [];
 var videoTimingVar_;
 var frameIterator_ = 0;
 var videoCanvas_ = document.getElementById("videoCanvas");
-var videoCanvasCtx_ = videoCanvas_.getContext("2d");
-var videoCanvasWidth_ = videoCanvas_.width, videoCanvasHeight_ = videoCanvas_.height;
+var videoCanvasCtx_;
+var videoPlayInterval_ = 500;
 //Video Timing function
 function startFramePlaying() {
+    //clear the canvas
+    borderCanvasLayer.canvas().getContext("2d").clearRect(0, 0, borderCanvasLayer.canvas().width, borderCanvasLayer.canvas().height);
     pauseFramePlaying();
-    frameIterator_ = 0;
+    //frameIterator_ = 0;
     console.log("Starting Frame Data Fetch", "info");
-    videoTimingVar_ = setInterval(getFromVideoFrames, 33);
+    videoTimingVar_ = setInterval(getFromVideoFrames, 500);
 }
 
 //Video Timing function
@@ -25,12 +27,18 @@ function pauseFramePlaying() {
 
 //Video Timing function
 function getFromVideoFrames() {
-    if (frameIterator_ > frames_.length) {
+    if (frameIterator_ >= frames_.length) {
+        frameIterator_ = 0;
         pauseFramePlaying();
         return;
     }
-    videoCanvasCtx_.drawImage(frames[frameIterator_], 0, 0, videoCanvasWidth_, videoCanvasHeight_);
+    videoCanvasCtx_.putImageData(frames_[frameIterator_], 0, 0);
     document.getElementById("playbackStatus").innerHTML = times_[frameIterator_];
     document.getElementById("over_map").innerHTML = times_[frameIterator_];
     frameIterator_++;
+}
+
+//Video Timing function
+function setCachePlayInterval() {
+    videoPlayInterval_ = document.getElementById("cachePlayIntervalInput").value;
 }
