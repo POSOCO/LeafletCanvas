@@ -33,8 +33,10 @@ function getFromVideoFrames() {
         return;
     }
     videoCanvasCtx_.putImageData(frames_[frameIterator_], 0, 0);
-    document.getElementById("playbackStatus").innerHTML = times_[frameIterator_];
-    document.getElementById("over_map").innerHTML = times_[frameIterator_];
+    var hours = Math.floor((times_[frameIterator_]) / 60);
+    var timeStringToDisplay = FormatNumberLength(hours, 2) + ":" + FormatNumberLength((times_[frameIterator_] - hours * 60), 2) + " Hrs";
+    document.getElementById("playbackStatus").innerHTML = timeStringToDisplay;
+    document.getElementById("over_map").innerHTML = timeStringToDisplay;
     frameIterator_++;
 }
 
