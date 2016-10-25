@@ -137,7 +137,7 @@ function getFromFrames() {
     var timeStringToDisplay = FormatNumberLength(hours, 2) + ":" + FormatNumberLength((frameToFetch_ - hours * 60), 2) + " Hrs";
     document.getElementById("playbackStatus").innerHTML = timeStringToDisplay;
     document.getElementById("over_map").innerHTML = timeStringToDisplay;
-    times_.push(timeStringToDisplay);
+    times_.push(frameToFetch_);
     frameToFetch_ += framesToIncrement_;
     if (frameToFetch_ >= 1440) {
         jumpToFrame(0);
