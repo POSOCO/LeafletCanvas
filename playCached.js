@@ -40,7 +40,9 @@ function getFromVideoFrames() {
         frameIterator_ = 0;
     }
     document.getElementById("videoTimeSlider").value = frameIterator_;
-    document.getElementById("videoTimeSlider").onchange();
+    var hours = Math.floor((times_[frameIterator_]) / 60);
+    var timeStringToDisplay = FormatNumberLength(hours, 2) + ":" + FormatNumberLength((times_[frameIterator_] - hours * 60), 2) + " Hrs";
+    document.getElementById("videoTimeString").innerHTML = timeStringToDisplay;
 }
 
 //Video Timing function
@@ -53,6 +55,9 @@ function updateVideoTime() {
     var hours = Math.floor((times_[sliderVal]) / 60);
     var timeStringToDisplay = FormatNumberLength(hours, 2) + ":" + FormatNumberLength((times_[sliderVal] - hours * 60), 2) + " Hrs";
     document.getElementById("videoTimeString").innerHTML = timeStringToDisplay;
+    if(document.getElementById("autoRefresh").checked == true){
+        document.getElementById("drawSnapshotButton").onclick();
+    }
 }
 
 function paintCachedFrame(){

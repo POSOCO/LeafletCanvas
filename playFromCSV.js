@@ -100,7 +100,9 @@ function pauseFrameFetching() {
     document.getElementById("videoTimeSlider").min = 0;
     document.getElementById("videoTimeSlider").max = times_.length - 1;
     document.getElementById("videoTimeSlider").value = 0;
-    document.getElementById("videoTimeSlider").onchange();
+    var hours = Math.floor((times_[0]) / 60);
+    var timeStringToDisplay = FormatNumberLength(hours, 2) + ":" + FormatNumberLength((times_[0] - hours * 60), 2) + " Hrs";
+    document.getElementById("videoTimeString").innerHTML = timeStringToDisplay;
 }
 
 var isFrameBusy_ = false;
