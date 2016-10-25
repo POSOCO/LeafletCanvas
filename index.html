@@ -65,7 +65,7 @@
             bottom: 10px;
             right: 5px;
             opacity: 0.5;
-            background-color: #666666;
+            background-color: #dddddd;
             /*
             width: 200px;
             height: 100px;
@@ -167,29 +167,33 @@
             boundary-links="true">
     </dir-pagination-controls>
 </div>
-</div>
+
 <br>
+
 <div>
-    <input type="range" id="videoTimeSlider" min="0" max="0" value="0" step="1" style="margin-left:1%;width:50%" onchange="updateVideoTime()">
-    <span id="videoTimeString">sudhir</span>
+    <input type="range" id="videoTimeSlider" min="0" max="0" value="0" step="1" style="margin-left:1%;width:50%"
+           onchange="updateVideoTime()">
+    <span id="videoTimeString"></span>
+    <button id="drawSnapshotButton" onclick="paintCachedFrame()">Refresh</button>
 </div>
 <div id="controlInputs" style="margin:10px 5px 5px 10px;"><!--top right bottom left-->
     <button onclick="startFetching()">StartFetching</button>
     <button onclick="pauseFetching()">StopFetching</button>
     <span style="padding-left:15px;"></span>
-    <button onclick="startFrameFetching()">StartPlayback</button>
-    <button onclick="pauseFrameFetching()">StopPlayback</button>
+    <button onclick="startFrameFetching()">CSVPlay</button>
+    <button onclick="pauseFrameFetching()">CSVPause</button>
     <span id="playbackStatus"></span>
+    <span id="playbackStatusPaused"></span>
     <span style="padding-left:20px;"></span>
     <input id="jumpToFrameInput" type="number" value="0" style="width:45px;"/>
     <button onclick="jumpToFrameGUI()"> JumpToMinute</button>
     <span style="padding-left:20px;"></span>
-    <input id="frameRateInput" type="number" value="1" style="width:35px;"/>
+    <input id="frameRateInput" type="number" value="5" style="width:35px;"/>
     <button onclick="setFrameRateGUI()"> SetMinuteRate</button>
     <br><br>
     <button onclick="startFramePlaying()">PlayCachedData</button>
     <button onclick="pauseFramePlaying()">PauseCachedData</button>
-    <input id="cachePlayIntervalInput" type="number" min="30" max="1000" value="500" placeholder="cacheInterval">
+    <input id="cachePlayIntervalInput" type="number" min="30" max="1000" value="200" placeholder="cacheInterval">
     <button id="setCacheIntervalButton" onclick="setCachePlayInterval()">SetCachePlayBackInterval</button>
     <br>
     <span>Select the voltage files</span>

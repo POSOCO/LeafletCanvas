@@ -57,7 +57,7 @@ function setIsBusy(val) {
 
 var frameTimingVar_;
 var frameToFetch_ = 0;
-var framesToIncrement_ = 1;
+var framesToIncrement_ = 5;
 
 //Jump to a frame
 function jumpToFrame(framenumber) {
@@ -95,8 +95,12 @@ function startFrameFetching() {
 function pauseFrameFetching() {
     //frameToFetch = 0;
     console.log("Pausing Frame Data Fetch", "warning");
-    document.getElementById("playbackStatus").innerHTML += "\n(PlayBack Paused)";
+    document.getElementById("playbackStatusPaused").innerHTML = "\t(PlayBack Paused)";
     clearInterval(frameTimingVar_);
+    document.getElementById("videoTimeSlider").min = 0;
+    document.getElementById("videoTimeSlider").max = times_.length - 1;
+    document.getElementById("videoTimeSlider").value = 0;
+    document.getElementById("videoTimeSlider").onchange();
 }
 
 var isFrameBusy_ = false;
@@ -139,6 +143,7 @@ function getFromFrames() {
     document.getElementById("over_map").innerHTML = timeStringToDisplay;
     times_.push(frameToFetch_);
     frameToFetch_ += framesToIncrement_;
+    document.getElementById("playbackStatusPaused").innerHTML = "";
     if (frameToFetch_ >= 1440) {
         jumpToFrame(0);
         pauseFrameFetching();
