@@ -143,6 +143,7 @@ function getFromFrames() {
     var timeStringToDisplay = FormatNumberLength(hours, 2) + ":" + FormatNumberLength((frameToFetch_ - hours * 60), 2) + " Hrs";
     document.getElementById("playbackStatus").innerHTML = timeStringToDisplay;
     document.getElementById("over_map").innerHTML = timeStringToDisplay;
+    frames_.push(borderCanvasLayer.canvas().getContext("2d").getImageData(0, 0, borderCanvasLayer.canvas().width, borderCanvasLayer.canvas().height));
     times_.push(frameToFetch_);
     frameToFetch_ += framesToIncrement_;
     document.getElementById("playbackStatusPaused").innerHTML = "";
