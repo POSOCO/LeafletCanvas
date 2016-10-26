@@ -465,8 +465,8 @@
 
     function drawApproxVoltageContour(canvasOverlay, params) {
         var timeStart = new Date();
-        var alpha = 0.5;
-        var transparency = 0.3;
+        alpha = 0.5;
+        transparency = 0.3;
         hotPU = 1.05;
         coolPU = 0.95;
         var ctx = params.canvas.getContext('2d');
@@ -776,6 +776,20 @@
             return degrees - Math.ceil(degrees / 180) * 180;
         }
         return degrees;
+    }
+    
+    function setAlpha(){
+        var temp = document.getElementById("alphaTextControl").value;
+        if(!isNaN(temp)){
+            alpha = temp;           
+        }
+    }
+    
+    function setTransparency(){
+        var temp = document.getElementById("TransTextControl").value;
+        if(!isNaN(temp)){
+            transparency = temp;           
+        }
     }
 </script>
 </body>
