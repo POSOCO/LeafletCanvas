@@ -268,8 +268,8 @@
     var sourceMarkersLayer = L.layerGroup(markers);
     sourceMarkersLayer.addTo(leafletMap);
 
-    var hotPU = 1.05;
-    var coolPU = 0.95;
+    var hotPU_ = 1.05;
+    var coolPU_ = 0.95;
     var alpha_ = 0.5;
     var transparency_ = 0.3;
     //Getting OpenWeatherMapOverlays
@@ -466,8 +466,8 @@
 
     function drawApproxVoltageContour(canvasOverlay, params) {
         var timeStart = new Date();
-        hotPU = 1.05;
-        coolPU = 0.95;
+        var hotPU = hotPU_;
+        var coolPU = coolPU_;
         var ctx = params.canvas.getContext('2d');
         var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height).data;
         var width = params.canvas.width;
@@ -491,18 +491,23 @@
             }
             sourcePixelLocations.push(canvasOverlay._map.latLngToContainerPoint([sources[i][0], sources[i][1]]));
         }
+        var sourcePU;
+        var sourcePUError;
+        var sourcePtLat;
+        var sourcePtLng;
+        var errorContributions;
         //for each pixel on the canvas filter...
         for (var x = 0; x < width; x++) {
             for (var y = 0; y < height; y++) {
                 var index = 4 * (x + y * width);
                 if (imageData[index] > 0) {
                     //calculate the error contribution from each source and store in an array
-                    var errorContributions = [];
+                    errorContributions = [];
                     for (var k = 0; k < sources.length; k++) {
-                        var sourcePU = sources[k][2];
-                        var sourcePUError = sourcePU - 1;
-                        var sourcePtLat = sources[k][0];
-                        var sourcePtLng = sources[k][1];
+                        sourcePU = sources[k][2];
+                        sourcePUError = sourcePU - 1;
+                        sourcePtLat = sources[k][0];
+                        sourcePtLng = sources[k][1];
                         /*
                          calculate error contribution from this source
                          error(x,y)= SourcePUError * e^(- damping factor * distance of the source from (x,y) position)
