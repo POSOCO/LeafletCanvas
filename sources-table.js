@@ -9,6 +9,9 @@ angular.module('voltageSortApp', ['angularUtils.directives.dirPagination'])
         $scope.updateSources = function (sourcesArray) {
             $scope.sources = [];
             for (var i = 0; i < sourcesArray.length; i++) {
+                if (typeof specificSourcesIndices !== 'undefined' && specificSourcesIndices.indexOf(i) == -1) {
+                    continue;
+                }
                 var source = sourcesArray[i];
                 if (source[6] != "OK") {
                     continue;
@@ -21,6 +24,14 @@ angular.module('voltageSortApp', ['angularUtils.directives.dirPagination'])
                 });
             }
             $scope.$apply();
+        };
+
+        $scope.openMarkerPopup = function (sourceIndex) {
+            var temp = sourceIndex;
+            if (specificSourcesIndices != 'undefined' && specificSourcesIndices.indexOf(sourceIndex) != -1) {
+                temp = specificSourcesIndices.indexOf(sourceIndex);
+            }
+            markers[temp].openPopup();
         };
 
         //set page size
