@@ -270,8 +270,8 @@
 
     var hotPU = 1.05;
     var coolPU = 0.95;
-    var alpha = 0.5;
-    var transparency = 0.3;
+    var alpha_ = 0.5;
+    var transparency_ = 0.3;
     //Getting OpenWeatherMapOverlays
     var clouds = L.OWM.clouds({showLegend: false, opacity: 0.5});
     var cloudsClassic = L.OWM.cloudsClassic();
@@ -472,8 +472,8 @@
         var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height).data;
         var width = params.canvas.width;
         var height = params.canvas.height;
-        var alpha = alpha;
-        var transparency = transparency;
+        var alpha = alpha_;
+        var transparency = transparency_;
         //npx = latSpan/canvasWidth; npy = lngSpan/canvasHeight; npxRatioSquare = npy*npy/(npx*npx);
         var southEast = leafletMap.getBounds().getSouthEast();
         var northWest = leafletMap.getBounds().getNorthWest();
@@ -781,14 +781,14 @@
     function setAlpha(){
         var temp = document.getElementById("alphaTextControl").value;
         if(!isNaN(temp)){
-            alpha = temp;           
+            alpha_ = temp;           
         }
     }
     
     function setTransparency(){
         var temp = document.getElementById("TransTextControl").value;
         if(!isNaN(temp)){
-            transparency = temp;           
+            transparency_ = temp;           
         }
     }
 </script>
