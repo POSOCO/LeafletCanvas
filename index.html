@@ -249,7 +249,8 @@
             .addTo(leafletMap);
     videoCanvas_.width = borderCanvasLayer.canvas().width;
     videoCanvas_.height = borderCanvasLayer.canvas().height;
-    videoCanvasCtx_ = videoCanvas_.getContext("2d");
+    //videoCanvasCtx_ = videoCanvas_.getContext("2d");
+    videoCanvasCtx_ = borderCanvasLayer.canvas().getContext("2d");
     //draw markers for sources
     var markers = [];
     var myIcon = L.divIcon({
