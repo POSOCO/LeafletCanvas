@@ -472,7 +472,8 @@
         var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height).data;
         var width = params.canvas.width;
         var height = params.canvas.height;
-
+        var alpha = alpha;
+        var transparency = transparency;
         //npx = latSpan/canvasWidth; npy = lngSpan/canvasHeight; npxRatioSquare = npy*npy/(npx*npx);
         var southEast = leafletMap.getBounds().getSouthEast();
         var northWest = leafletMap.getBounds().getNorthWest();
