@@ -28,7 +28,7 @@ angular.module('voltageSortApp', ['angularUtils.directives.dirPagination'])
 
         $scope.openMarkerPopup = function (sourceIndex) {
             var temp = sourceIndex;
-            if (specificSourcesIndices != 'undefined' && specificSourcesIndices.indexOf(sourceIndex) != -1) {
+            if (typeof specificSourcesIndices != 'undefined' && specificSourcesIndices.indexOf(sourceIndex) != -1) {
                 temp = specificSourcesIndices.indexOf(sourceIndex);
             }
             markers[temp].openPopup();
