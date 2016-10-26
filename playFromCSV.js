@@ -127,10 +127,10 @@ function getFromFrames() {
     angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
     for (var i = 0; i < sources.length; i++) {
         var tempPu = sources[i][2];
-        if (tempPu > hotPU) {
-            tempPu = hotPU;
-        } else if (tempPu < coolPU) {
-            tempPu = coolPU;
+        if (tempPu > hotPU_) {
+            tempPu = hotPU_;
+        } else if (tempPu < coolPU_) {
+            tempPu = coolPU_;
         }
         sources[i][2] = tempPu;
     }
