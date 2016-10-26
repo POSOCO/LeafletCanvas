@@ -270,7 +270,9 @@
 
     var hotPU = 1.05;
     var coolPU = 0.95;
-
+    var alpha = 0.5;
+    var transparency = 0.3;
+    var tra
     //Getting OpenWeatherMapOverlays
     var clouds = L.OWM.clouds({showLegend: false, opacity: 0.5});
     var cloudsClassic = L.OWM.cloudsClassic();
@@ -465,8 +467,6 @@
 
     function drawApproxVoltageContour(canvasOverlay, params) {
         var timeStart = new Date();
-        alpha = 0.5;
-        transparency = 0.3;
         hotPU = 1.05;
         coolPU = 0.95;
         var ctx = params.canvas.getContext('2d');
