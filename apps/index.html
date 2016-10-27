@@ -93,7 +93,7 @@
 
 <div class="map-container">
     <div id="map"></div>
-    <canvas id="videoCanvas"></canvas>
+    <!--<canvas id="videoCanvas"></canvas>-->
     <div style="position: absolute;display: inline-block;font-style: italic;color: #aaaaaa;z-index: 1000;width: 50%;height: 30px;bottom: 0px;">
         <span>Refresh time - </span><span id="refresh-time">NA</span><span> milli secs</span>
     </div>
@@ -178,13 +178,14 @@
     <span id="videoTimeString"></span>
     <button id="drawSnapshotButton" onclick="paintCachedFrame()">Refresh</button>
     <label><input type="checkbox" id="autoRefresh" checked>AutoRefresh</label>
+    <button id="mapViewResetButton" onclick="resetMapView()">Reset Map View</button>
 </div>
 <div id="controlInputs" style="margin:10px 5px 5px 10px;"><!--top right bottom left-->
     <button onclick="startFetching()">StartFetching</button>
     <button onclick="pauseFetching()">StopFetching</button>
     <span style="padding-left:15px;"></span>
-    <button onclick="startFrameFetching()">CSVPlay</button>
-    <button onclick="pauseFrameFetching()">CSVPause</button>
+    <button onclick="startFrameFetching()">PLAY</button>
+    <button onclick="pauseFrameFetching()">PAUSE</button>
     <span id="playbackStatus"></span>
     <span id="playbackStatusPaused"></span>
     <span style="padding-left:20px;"></span>
@@ -256,8 +257,8 @@
             .params({"stateShapes": [msebBorderGeo.features]})
             .drawing(drawingOnCanvas)
             .addTo(leafletMap);
-    videoCanvas_.width = borderCanvasLayer.canvas().width;
-    videoCanvas_.height = borderCanvasLayer.canvas().height;
+    //videoCanvas_.width = borderCanvasLayer.canvas().width;
+    //videoCanvas_.height = borderCanvasLayer.canvas().height;
     //videoCanvasCtx_ = videoCanvas_.getContext("2d");
     videoCanvasCtx_ = borderCanvasLayer.canvas().getContext("2d");
     //draw markers for sources
@@ -452,6 +453,12 @@
         var temp = document.getElementById("TransTextControl").value;
         if (!isNaN(temp)) {
             transparency_ = +temp;
+        }
+    }
+
+    function resetMapView() {
+        if (typeof leafletMap != 'undefined') {
+            leafletMap.setView([18.87510275035649, 76.5252685546875], 7);
         }
     }
 </script>
