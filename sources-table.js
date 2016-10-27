@@ -5,7 +5,6 @@ angular.module('voltageSortApp', ['angularUtils.directives.dirPagination'])
         $scope.sortReverse = true;  // set the default sort order
         $scope.searchLine = '';     // set the default search/filter term
         $scope.sources = [];
-
         $scope.updateSources = function (sourcesArray) {
             $scope.sources = [];
             for (var i = 0; i < sourcesArray.length; i++) {
