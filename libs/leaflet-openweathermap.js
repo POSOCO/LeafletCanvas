@@ -225,7 +225,7 @@ L.OWM.Current = L.Class.extend({
     includes: L.Mixin.Events,
 
     options: {
-        appId: null, // get your free Application ID at www.openweathermap.org
+        appId: '1148b44cf86b14a5bb6a1712ce8ffe15', // get your free Application ID at www.openweathermap.org
         type: 'city', // available types: 'city', 'station'
         lang: 'en', // available: 'en', 'de', 'ru', 'fr', 'nl', 'es', 'ca' (not every language is finished yet)
         minZoom: 7,
@@ -273,7 +273,7 @@ L.OWM.Current = L.Class.extend({
         this._urlTemplate = 'http://api.openweathermap.org/data/2.5/box/{type}?{appId}cnt=300&format=json&units=metric&bbox={minlon},{minlat},{maxlon},{maxlat},10';
         this._directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N'];
         this._msbft = [0.3, 1.6, 3.4, 5.5, 8.0, 10.8, 13.9, 17.2, 20.8, 24.5, 28.5, 32.7, 37.0, 41.5, 46.2, 51.0, 56.1, 61.3]; // Beaufort scala
-        this._tempUnits = { K: 'K', C: '°C', F: 'F'};
+        this._tempUnits = { K: 'K', C: 'Â°C', F: 'F'};
         this._progressCtrl = null;
         if (this.options.progressControl) {
             var bgIcon;
@@ -566,10 +566,10 @@ L.OWM.Current = L.Class.extend({
                 if (this.options.showWindDirection == 'desc' || this.options.showWindDirection == 'both') {
                     txt += this._directions[(station.wind.deg/22.5).toFixed(0)];
                     if (this.options.showWindDirection == 'both') {
-                        txt += '&nbsp;(' + station.wind.deg + '°)';
+                        txt += '&nbsp;(' + station.wind.deg + 'Â°)';
                     }
                 } else {
-                    txt += station.wind.deg + '°';
+                    txt += station.wind.deg + 'Â°';
                 }
                 txt += '</div>';
             }
@@ -922,8 +922,8 @@ L.OWM.Utils = {
             , temperature: 'Temperatur'
             , temp_minmax: 'Temp. min/max'
             , wind: 'Wind'
-            , gust: 'Windböen'
-            , windforce: 'Windstärke'
+            , gust: 'WindbÃ¶en'
+            , windforce: 'WindstÃ¤rke'
             , direction: 'Windrichtung'
             , rain_1h: 'Regen'
             , humidity: 'Luftfeuchtigkeit'
@@ -934,7 +934,7 @@ L.OWM.Utils = {
             , id201: 'Gewitter mit Regen' // 'Thunderstorm with Rain'
             , id202: 'Gewitter mit Starkregen' // 'Thunderstorm with Heavy Rain'
             , id210: 'Leichtes Gewitter' // 'Light Thunderstorm'
-            , id211: 'Mäßiges Gewitter' // 'Thunderstorm'
+            , id211: 'MÃ¤ÃŸiges Gewitter' // 'Thunderstorm'
             , id212: 'Starkes Gewitter' // 'Heavy Thunderstorm'
             //	, id221: 'Ragged Thunderstorm'
             //	, id230: 'Thunderstorm with Light Drizzle'
@@ -950,17 +950,17 @@ L.OWM.Utils = {
             //	, id321: 'Shower Drizzle'
 
             , id500: 'Leichter Regen' // 'Light Rain'
-            , id501: 'Mäßiger Regen' // 'Moderate Rain'
+            , id501: 'MÃ¤ÃŸiger Regen' // 'Moderate Rain'
             , id502: 'Starker Regen' // 'Heavy Intensity Rain'
             , id503: 'Ergiebiger Regen' // 'Very Heavy Rain'
             , id504: 'Starkregen' // 'Extreme Rain'
             , id511: 'Gefrierender Regen' // 'Freezing Rain'
             , id520: 'Leichte Regenschauer' // 'Light Intensity Shower Rain'
-            , id521: 'Mäßige Regenschauer' // 'Shower Rain'
+            , id521: 'MÃ¤ÃŸige Regenschauer' // 'Shower Rain'
             , id522: 'Wolkenbruchartige Regenschauer' // 'Heavy Intensity Shower Rain'
 
             , id600: 'Leichter Schneefall' // 'Light Snow'
-            , id601: 'Mäßiger Schneefall' // 'Snow'
+            , id601: 'MÃ¤ÃŸiger Schneefall' // 'Snow'
             , id602: 'Starker Schneefall' // 'Heavy Snow'
             , id611: 'Schneeregen' // 'Sleet'
             , id621: 'Schneeschauer' // 'Shower Snow'
@@ -968,7 +968,7 @@ L.OWM.Utils = {
 
             , id701: 'Dunst' // 'Mist'
             , id711: 'Rauch' // 'Smoke'
-            , id721: 'Eingetrübt' // 'Haze'
+            , id721: 'EingetrÃ¼bt' // 'Haze'
             , id731: 'Sand-/Staubwirbel' // 'Sand/Dust Whirls'
             , id741: 'Nebel' // 'Fog'
             , id751: 'Sand' // 'Sand'
@@ -976,15 +976,15 @@ L.OWM.Utils = {
             , id800: 'Wolkenlos' // 'Sky is Clear'
             , id800d: 'Sonnig' // 'Sky is Clear' at day
             , id800n: 'Klar' // 'Sky is Clear' at night
-            , id801: 'Leicht bewölkt' // 'Few Clouds'
+            , id801: 'Leicht bewÃ¶lkt' // 'Few Clouds'
             , id802: 'Wolkig' // 'Scattered Clouds'
-            , id803: 'Stark bewölkt' // 'Broken Clouds'
+            , id803: 'Stark bewÃ¶lkt' // 'Broken Clouds'
             , id804: 'Bedeckt' // 'Overcast Clouds'
 
             , id900: 'Tornado' // 'Tornado'
             , id901: 'Tropischer Sturm' // 'Tropical Storm'
             , id902: 'Orkan' // 'Hurricane'
-            , id903: 'Kälte' // 'Cold'
+            , id903: 'KÃ¤lte' // 'Cold'
             , id904: 'Hitze' // 'Hot'
             , id905: 'Windig' // 'Windy'
             , id906: 'Hagel' // 'Hail'
@@ -1062,21 +1062,21 @@ L.OWM.Utils = {
         },
 
         fr: {
-            owmlinktitle: 'Détails à OpenWeatherMap'
-            , temperature: 'Température'
+            owmlinktitle: 'DÃ©tails Ã  OpenWeatherMap'
+            , temperature: 'TempÃ©rature'
             , temp_minmax: 'Temp. min/max'
             , wind: 'Vent'
             , gust: 'Rafales'
             , windforce: 'Force du vent'
             , direction: 'Direction'
             , rain_1h: 'Pluie'
-            , humidity: 'Humidité'
+            , humidity: 'HumiditÃ©'
             , pressure: 'Pression'
 
-            // Les conditions météorologiques, voir http://openweathermap.org/weather-conditions
-            , id200: 'Orage avec pluie légère' // 'Thunderstorm with Light Rain'
+            // Les conditions mÃ©tÃ©orologiques, voir http://openweathermap.org/weather-conditions
+            , id200: 'Orage avec pluie lÃ©gÃ¨re' // 'Thunderstorm with Light Rain'
             , id201: 'Orage avec pluie' // 'Thunderstorm with Rain'
-            , id202: 'Orage avec fortes précipitations' // 'Thunderstorm with Heavy Rain'
+            , id202: 'Orage avec fortes prÃ©cipitations' // 'Thunderstorm with Heavy Rain'
             //	, id210: 'Light Thunderstorm'
             , id211: 'Orage'
             , id212: 'Orage violent' // 'Heavy Thunderstorm'
@@ -1093,8 +1093,8 @@ L.OWM.Utils = {
             //	, id312: 'Heavy Intensity Drizzle Rain'
             //	, id321: 'Shower Drizzle'
 
-            , id500: 'Pluie légère' // 'Light Rain'
-            , id501: 'Pluie modérée' // 'Moderate Rain'
+            , id500: 'Pluie lÃ©gÃ¨re' // 'Light Rain'
+            , id501: 'Pluie modÃ©rÃ©e' // 'Moderate Rain'
             , id502: 'Pluie battante' // 'Heavy Intensity Rain'
             //	, id503: 'Very Heavy Rain'
             //	, id504: 'Extreme Rain'
@@ -1103,7 +1103,7 @@ L.OWM.Utils = {
             //	, id521: 'Shower Rain'
             //	, id522: 'Heavy Intensity Shower Rain'
 
-            , id600: 'Légers flocons' // 'Light Snow'
+            , id600: 'LÃ©gers flocons' // 'Light Snow'
             , id601: 'Neige' // 'Snow'
             , id602: 'Fortes chutes de neige' // 'Heavy Snow'
             , id611: 'Neige fondue' // 'Sleet'
@@ -1111,25 +1111,25 @@ L.OWM.Utils = {
             , id622: 'Fortes chutes de neige' // 'Heavy Shower Snow'
 
             , id701: 'Brume' // 'Mist'
-            , id711: 'Fumée' // 'Smoke'
+            , id711: 'FumÃ©e' // 'Smoke'
             , id721: 'Brume' // 'Haze'
-            , id731: 'Tourbillons de sable/poussière' // 'Sand/Dust Whirls'
+            , id731: 'Tourbillons de sable/poussiÃ¨re' // 'Sand/Dust Whirls'
             , id741: 'Brouillard' // 'Fog'
             //	, id751: 'Sand'
 
-            , id800: 'Ciel dégagé' // 'Sky is Clear'
-            , id801: 'Ciel voilé'
+            , id800: 'Ciel dÃ©gagÃ©' // 'Sky is Clear'
+            , id801: 'Ciel voilÃ©'
             , id802: 'Nuageux' // 'Scattered Clouds'
             , id803: 'Nuageux' // 'Broken Clouds'
             , id804: 'Ciel couvert' // 'Overcast Clouds'
 
             , id900: 'Tornade' // 'Tornado'
-            , id901: 'Tempête tropicale'// 'Tropical Storm'
+            , id901: 'TempÃªte tropicale'// 'Tropical Storm'
             , id902: 'Ouragan' // 'Hurricane'
             , id903: 'Froid' // 'Cold'
             , id904: 'Chaleur' // 'Hot'
             , id905: 'Venteux' // 'Windy'
-            , id906: 'Grêle' // 'Hail'
+            , id906: 'GrÃªle' // 'Hail'
         },
 
         nl: { //dutch translation
@@ -1206,58 +1206,58 @@ L.OWM.Utils = {
         es: { //spanish translation
             owmlinktitle: 'Detalles en OpenWeatherMap'
             , temperature: 'Temperatura'
-            , temp_minmax: 'Temp. mín/máx'
+            , temp_minmax: 'Temp. mÃ­n/mÃ¡x'
             , wind: 'Viento'
-            , gust: 'Ráfagas'
+            , gust: 'RÃ¡fagas'
             , windforce: 'Fuerza del viento'
-            , direction: 'Dirección'
+            , direction: 'DirecciÃ³n'
             , rain_1h: 'Lluvia'
             , humidity: 'Humedad'
-            , pressure: 'Presión'
+            , pressure: 'PresiÃ³n'
 
             // weather conditions, see http://openweathermap.org/weather-conditions
             // Thunderstorm
-            , id200: 'Tormenta con lluvia débil'
+            , id200: 'Tormenta con lluvia dÃ©bil'
             , id201: 'Tormenta con lluvia'
             , id202: 'Tormenta con lluvia fuerte'
-            , id210: 'Tormenta débil'
+            , id210: 'Tormenta dÃ©bil'
             , id211: 'Tormenta'
             , id212: 'Tormenta fuerte'
             , id221: 'Tormenta irregular'
-            , id230: 'Tormenta con llovizna débil'
+            , id230: 'Tormenta con llovizna dÃ©bil'
             , id231: 'Tormenta con llovizna'
             , id232: 'Tormenta con llovizna fuerte'
 
             // Drizzle
-            , id300: 'Llovizna débil'
+            , id300: 'Llovizna dÃ©bil'
             , id301: 'Llovizna'
             , id302: 'Llovizna fuerte'
-            , id310: 'Lluvia/llovizna débil'
+            , id310: 'Lluvia/llovizna dÃ©bil'
             , id311: 'Lluvia/llovizna'
             , id312: 'Lluvia/llovizna fuerte'
             , id321: 'Chubasco de llovizna'
 
             // Rain
-            , id500: 'Lluvia débil'
+            , id500: 'Lluvia dÃ©bil'
             , id501: 'Lluvia moderada'
             , id502: 'Lluvia fuerte'
             , id503: 'Lluvia muy fuerte'
             , id504: 'Lluvia extrema'
             , id511: 'Granizo'
-            , id520: 'Chubasco de lluvia débil'
+            , id520: 'Chubasco de lluvia dÃ©bil'
             , id521: 'Chubasco de lluvia'
             , id522: 'Chubasco de lluvia fuerte'
             , id531: 'Chubasco de lluvia irregular'
 
             // Snow
-            , id600: 'Nieve débil'
+            , id600: 'Nieve dÃ©bil'
             , id601: 'Nieve'
             , id602: 'Nieve fuerte'
             , id611: 'Aguanieve'
             , id612: 'Chubasco de aguanieve'
-            , id615: 'Lluvia y nieve débiles'
+            , id615: 'Lluvia y nieve dÃ©biles'
             , id616: 'Lluvia y nieve'
-            , id620: 'Chubasco de nieve débil'
+            , id620: 'Chubasco de nieve dÃ©bil'
             , id621: 'Chubasco de nieve'
             , id622: 'Chubasco de nieve fuerte'
 
@@ -1269,7 +1269,7 @@ L.OWM.Utils = {
             , id741: 'Niebla'
             , id751: 'Arena'
             , id761: 'Polvo'
-            , id762: 'Ceniza volcánica'
+            , id762: 'Ceniza volcÃ¡nica'
             , id771: 'Tempestad'
             , id781: 'Tornado'
 
@@ -1277,13 +1277,13 @@ L.OWM.Utils = {
             , id800: 'Cielo despejado'
             , id801: 'Algunas nubes'
             , id802: 'Nubes dispersas'
-            , id803: 'Intérvalos nubosos'
+            , id803: 'IntÃ©rvalos nubosos'
             , id804: 'Nublado'
 
             // Extreme
             , id900: 'Tornado'
             , id901: 'Tormenta tropical'
-            , id902: 'Huracán'
+            , id902: 'HuracÃ¡n'
             , id903: 'Bajas temperaturas'
             , id904: 'Altas temperaturas'
             , id905: 'Ventoso'
@@ -1296,25 +1296,25 @@ L.OWM.Utils = {
             , id954: 'Brisa moderada'
             , id955: 'Brisa fresca'
             , id956: 'Brisa fuerte'
-            , id957: 'Viento fuerte, próximo a vendaval'
+            , id957: 'Viento fuerte, prÃ³ximo a vendaval'
             , id958: 'Vendaval'
             , id959: 'Vendaval fuerte'
             , id960: 'Tempestad'
             , id961: 'Tempestad violenta'
-            , id962: 'Huracán'
+            , id962: 'HuracÃ¡n'
         },
 
         ca: { //catalan translation
             owmlinktitle: 'Detalls en OpenWeatherMap'
             , temperature: 'Temperatura'
-            , temp_minmax: 'Temp. mín/màx'
+            , temp_minmax: 'Temp. mÃ­n/mÃ x'
             , wind: 'Vent'
-            , gust: 'Ràfegues'
-            , windforce: 'Força del vent'
-            , direction: 'Direcció'
+            , gust: 'RÃ fegues'
+            , windforce: 'ForÃ§a del vent'
+            , direction: 'DirecciÃ³'
             , rain_1h: 'Pluja'
             , humidity: 'Humitat'
-            , pressure: 'Pressió'
+            , pressure: 'PressiÃ³'
 
             // weather conditions, see http://openweathermap.org/weather-conditions
             // Thunderstorm
@@ -1370,24 +1370,24 @@ L.OWM.Utils = {
             , id741: 'Boira'
             , id751: 'Sorra'
             , id761: 'Pols'
-            , id762: 'Cendra volcànica'
+            , id762: 'Cendra volcÃ nica'
             , id771: 'Tempestat'
             , id781: 'Tornado'
 
             // Clouds
             , id800: 'Cel clar'
-            , id801: 'Alguns núvols'
-            , id802: 'Núvols dispersos'
+            , id801: 'Alguns nÃºvols'
+            , id802: 'NÃºvols dispersos'
             , id803: 'Intervals nuvolosos'
             , id804: 'Ennuvolat'
 
             // Extreme
             , id900: 'Tornado'
             , id901: 'Tempesta tropical'
-            , id902: 'Huracà'
+            , id902: 'HuracÃ '
             , id903: 'Temperatures baixes'
             , id904: 'Temperatures altes'
-            , id905: 'Ventós'
+            , id905: 'VentÃ³s'
             , id906: 'Calabruix'
 
             // Additional
@@ -1397,12 +1397,12 @@ L.OWM.Utils = {
             , id954: 'Brisa moderada'
             , id955: 'Brisa fresca'
             , id956: 'Brisa forta'
-            , id957: 'Vent fort, pròxim a vendaval'
+            , id957: 'Vent fort, prÃ²xim a vendaval'
             , id958: 'Ventada'
             , id959: 'Ventada forta'
             , id960: 'Tempesta'
             , id961: 'Tempesta violenta'
-            , id962: 'Huracà'
+            , id962: 'HuracÃ '
         },
         pt_br: { //brazillian translation
             owmlinktitle: 'Detalhes em OpenWeatherMap'
@@ -1410,11 +1410,11 @@ L.OWM.Utils = {
             , temp_minmax: 'Temp. min/max'
             , wind: 'Vento'
             , gust: 'Rajadas'
-            , windforce: 'Força do Vento'
-            , direction: 'Direção'
+            , windforce: 'ForÃ§a do Vento'
+            , direction: 'DireÃ§Ã£o'
             , rain_1h: 'Chuva'
             , humidity: 'Umidade'
-            , pressure: 'Pressão'
+            , pressure: 'PressÃ£o'
 
             // weather conditions, see http://openweathermap.org/weather-conditions
             , id200: 'Trovoadas com chuva fraca'
@@ -1453,14 +1453,14 @@ L.OWM.Utils = {
             , id621: 'Aguaceiro de neve'
             , id622: 'Aguaceiro de neve forte'
 
-            , id701: 'Névoa'
-            , id711: 'Fumaça'
+            , id701: 'NÃ©voa'
+            , id711: 'FumaÃ§a'
             , id721: 'Bruma'
             , id731: 'Redemoinhos de Areia/Poeira'
             , id741: 'Neblina'
             , id751: 'Areia'
 
-            , id800: 'Ceu está limpo'
+            , id800: 'Ceu estÃ¡ limpo'
             , id801: 'Poucas nuvens'
             , id802: 'Nuvens dispersas'
             , id803: 'Cirros'
@@ -1468,7 +1468,7 @@ L.OWM.Utils = {
 
             , id900: 'Tornado'
             , id901: 'Tempestade tropical'
-            , id902: 'Furacão'
+            , id902: 'FuracÃ£o'
             , id903: 'Frio'
             , id904: 'Calor'
             , id905: 'Ventania'
