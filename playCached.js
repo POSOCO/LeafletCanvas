@@ -10,8 +10,6 @@ var videoCanvasCtx_;
 var videoPlayInterval_ = 200;
 //Video Timing function
 function startFramePlaying() {
-    //clear the canvas
-    borderCanvasLayer.canvas().getContext("2d").clearRect(0, 0, borderCanvasLayer.canvas().width, borderCanvasLayer.canvas().height);
     pauseFramePlaying();
     //frameIterator_ = 0;
     console.log("Starting Frame Data Fetch", "info");

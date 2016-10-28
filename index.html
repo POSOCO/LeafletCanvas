@@ -365,8 +365,8 @@
         var alpha = alpha_;
         var transparency = transparency_;
         //npx = latSpan/canvasWidth; npy = lngSpan/canvasHeight; npxRatioSquare = npy*npy/(npx*npx);
-        var southEast = leafletMap.getBounds().getSouthEast();
-        var northWest = leafletMap.getBounds().getNorthWest();
+        var southEast = canvasOverlay._map.getBounds().getSouthEast();
+        var northWest = canvasOverlay._map.getBounds().getNorthWest();
         var npx = (southEast.lng - northWest.lng) / width;
         npx = Math.abs(npx);
         var npy = (northWest.lat - southEast.lat) / height;
