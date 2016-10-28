@@ -64,8 +64,10 @@ function drawApproxVoltageContour(canvasOverlay, params) {
                 //Now paint according to this error value
                 var resultantHue = 240 * ((1 + resultantError - coolPU) / (hotPU - coolPU));
                 var resultColor = hsvToRgb(240 - resultantHue, 1, 1);
-                ctx.fillStyle = "rgba(" + resultColor[0] + "," + resultColor[1] + "," + resultColor[2] + ", " + transparency + ")";
-                ctx.fillRect(x, y, 1, 1);
+                imageData[index] = resultColor[0];
+                imageData[index + 1] = resultColor[1];
+                imageData[index + 2] = resultColor[2];
+                imageData[index + 3] = transparency;
             }
         }
     }
