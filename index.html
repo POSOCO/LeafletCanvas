@@ -23,7 +23,7 @@
             display: inline-block;
             margin-left: 1%;
             margin-right: 10px;
-            width: 50%;
+            width: 70%;
             height: 80%;
             vertical-align: top;
         }
@@ -38,7 +38,7 @@
         }
 
         table, td, th {
-            border: 1px solid black;
+            border: 1px solid #aaaaaa;
         }
 
         td {
@@ -77,19 +77,14 @@
             /*color: red;*/
         }
 
-        #videoCanvas {
-            left: 0;
-            top: 0;
-            position: absolute;
-            height: 100%;
-            width: 100%;
-            background-color: transparent;
-            pointer-events: none;
+        #voltage-report td {
+            padding-top: 5px;
         }
+
     </style>
 </head>
 <body>
-<h1>Voltage Contour</h1>
+<h2>Western Region Voltage Contour</h2>
 
 <div class="map-container">
     <div id="map"></div>
@@ -99,11 +94,11 @@
     </div>
     <p id="over_map" style="font-size: 30px;color: red">00:00 Hrs</p>
 
-    <span id="over_map_date" style="font-style: italic;color: #aaaaaa">Voltage contour on xx-xx-xxxx</span>
+    <span id="over_map_date" style="font-style: italic;color: #aaaaaa">Voltage contour on 24-10-2016</span>
 </div>
 
 <div class="container" ng-app="voltageSortApp" ng-controller="voltageSortController" id="voltage-report"
-     style="display: inline-block;width: 45%;vertical-align:top;">
+     style="display: inline-block;width: 28%;vertical-align:top;">
     <form>
         <div class="form-group">
             <div class="input-group">
@@ -177,36 +172,44 @@
     <input type="range" id="videoTimeSlider" min="0" max="0" value="0" step="1" style="margin-left:1%;width:50%"
            onchange="updateVideoTime()">
     <span id="videoTimeString"></span>
-    <button id="drawSnapshotButton" onclick="paintCachedFrame()">Refresh</button>
+    <button id="drawSnapshotButton" onclick="paintCachedFrame()">REFRESH</button>
     <label><input type="checkbox" id="autoRefresh" checked>AutoRefresh</label>
-    <button id="mapViewResetButton" onclick="resetMapView()">Reset Map View</button>
+    <span style="padding-left:15px;"></span>
+    <button id="mapViewResetButton" onclick="resetMapView()">RESET MAP VIEW</button>
 </div>
 <div id="controlInputs" style="margin:10px 5px 5px 10px;"><!--top right bottom left-->
-    <button onclick="startFetching()">StartFetching</button>
-    <button onclick="pauseFetching()">StopFetching</button>
+    <!--<button onclick="startFetching()">StartFetching</button>-->
+    <!--<button onclick="pauseFetching()">StopFetching</button>-->
     <span style="padding-left:15px;"></span>
     <button onclick="startFrameFetching()">PLAY</button>
     <button onclick="pauseFrameFetching()">PAUSE</button>
     <span id="playbackStatus"></span>
     <span id="playbackStatusPaused"></span>
     <span style="padding-left:20px;"></span>
-    <input id="jumpToFrameInput" type="number" value="0" style="width:45px;"/>
-    <button onclick="jumpToFrameGUI()"> JumpToMinute</button>
+    <input id="jumpToFrameInput" type="number" value="0" style="width:45px;padding-left: 5px"/>
+    <button onclick="jumpToFrameGUI()" style="padding: 2px">JUMP TO MINUTE</button>
     <span style="padding-left:20px;"></span>
-    <input id="frameRateInput" type="number" value="5" style="width:35px;"/>
-    <button onclick="setFrameRateGUI()"> SetMinuteRate</button>
+    <input id="frameRateInput" type="number" value="5" style="width:35px;padding-left: 5px"/>
+    <button onclick="setFrameRateGUI()" style="padding: 2px">SET MINUTE RATE</button>
     <br><br>
-    <button onclick="startFramePlaying()">PlayCachedData</button>
-    <button onclick="pauseFramePlaying()">PauseCachedData</button>
-    <input id="cachePlayIntervalInput" type="number" min="30" max="1000" value="200" placeholder="cacheInterval">
-    <button id="setCacheIntervalButton" onclick="setCachePlayInterval()">SetCachePlayBackInterval</button>
-    <br>
+    <span style="padding-left:15px;"></span>
+    <button onclick="startFramePlaying()">PLAY CACHED</button>
+    <button onclick="pauseFramePlaying()">PAUSE CACHED</button>
+    <span style="padding-left:15px;"></span>
+    <input id="cachePlayIntervalInput" type="number" min="30" max="1000" value="200" placeholder="cacheInterval"
+           style="padding-left: 5px">
+    <button id="setCacheIntervalButton" onclick="setCachePlayInterval()">SET CACHE PLAYBACK INTERVAL</button>
+    <br><br>
+    <span style="padding-left:15px;"></span>
     <span>Select the voltage files</span>
     <input type="file" id="fileInput">
     <br><br>
-    <input id="alphaTextControl" style="width:50px;" type="number" value="0.5"/>
+    <span style="padding-left:15px;"></span>
+    <input id="alphaTextControl" style="width:50px;padding-left: 5px" type="number" value="0.5"/>
     <button onclick="setAlpha()">Set Alpha</button>
-    <input id="TransTextControl" style="width:50px;margin-left:25px" type="number" value="0.3"/>
+    <br><br>
+    <span style="padding-left:15px;"></span>
+    <input id="TransTextControl" style="width:50px;padding-left: 5px" type="number" value="0.3"/>
     <button onclick="setTransparency()">Set Transparency</button>
     <br><br>
 </div>
