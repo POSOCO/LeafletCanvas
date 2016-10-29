@@ -343,3 +343,12 @@ function drawNewFastVoltageContour(canvasOverlay, params) {
     }
     document.getElementById("refresh-time").value = (new Date() - timeStart);
 }
+
+function correctDegrees(degrees) {
+        if (degrees > 180 && degrees > 0) {
+            return degrees - Math.floor(degrees / 180) * 180;
+        } else if (degrees < 180 && degrees < 0) {
+            return degrees - Math.ceil(degrees / 180) * 180;
+        }
+        return degrees;
+    }

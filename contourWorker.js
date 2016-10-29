@@ -1,37 +1,21 @@
-function drawApproxVoltageContour(canvasOverlay, params) {
-    var timeStart = new Date();
-    var hotPU = hotPU_;
-    var coolPU = coolPU_;
-    var ctx = params.canvas.getContext('2d');
-    var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height).data;
-    var width = params.canvas.width;
-    var height = params.canvas.height;
-    var alpha = alpha_;
-    var transparency = transparency_;
-    //npx = latSpan/canvasWidth; npy = lngSpan/canvasHeight; npxRatioSquare = npy*npy/(npx*npx);
-    var southEast = canvasOverlay._map.getBounds().getSouthEast();
-    var northWest = canvasOverlay._map.getBounds().getNorthWest();
-    var npx = (southEast.lng - northWest.lng) / width;
-    npx = Math.abs(npx);
-    var npy = (northWest.lat - southEast.lat) / height;
-    npy = Math.abs(npy);
-    var npxRatioSquare = (npy * npy) / (npx * npx);
-
-    //calculate source pixel locations
-    var sourcePixelLocations = [];
-    for (var i = 0; i < sources.length; i++) {
-        if (sources[i][6] != "OK") {
-            sources[i][2] = 1;
-        }
-        sourcePixelLocations.push(canvasOverlay._map.latLngToContainerPoint([sources[i][0], sources[i][1]]));
-    }
-    var sourcePU;
-    var sourcePUError;
-    var sourcePtLat;
-    var sourcePtLng;
-    var errorContributions;
-    //for each pixel on the canvas filter...
-    for (var x = 0; x < width; x++) {
+self.addEventListener('message', function(e) {
+  var data = e.data;
+  var cmd = data.cmd;
+  if(cmd != "render"){
+	  self.postMessage({'error': "unknown command..."});
+  }
+  var width = data.width;
+  var height = data.height;
+  var imageData = data.imageData;
+  var sources = data.sources;
+  var sourcePixelLocations = data.sourcePixelLocations;
+  var alpha = data.alpha;
+  var npx = data.npx;
+  var npxRatioSquare = data.npxRatioSquare;
+  var hotPU = data.hotPU;
+  var coolPU = data.coolPU;
+  
+  for (var x = 0; x < width; x++) {
         for (var y = 0; y < height; y++) {
             var index = 4 * (x + y * width);
             if (imageData[index] > 0) {
@@ -45,9 +29,9 @@ function drawApproxVoltageContour(canvasOverlay, params) {
                     /*
                      calculate error contribution from this source
                      error(x,y)= SourcePUError * e^(- damping factor * distance of the source from (x,y) position)
-                     error(x,y) = SourcePUError * e^((-?)*sqrt(x^2+y^2));
+                     error(x,y) = SourcePUError * e^((-alpha)*sqrt(x^2+y^2));
                      */
-                    errorContributions[k] = sourcePUError * Math.exp(-alpha * npx * Math.sqrt(Math.pow(sourcePixelLocations[k].x - x, 2) + Math.pow(sourcePixelLocations[k].y - y, 2)));
+                    errorContributions[k] = sourcePUError * Math.exp(-alpha * npx * Math.sqrt(Math.pow(sourcePixelLocations[k].x - x, 2) + Math.pow(npxRatioSquare * sourcePixelLocations[k].y - y, 2)));
                 }
                 //calculate the resultant error from all contributions by considering the contribution that has the highest absolute value
                 var resultantError = errorContributions[0];
@@ -71,5 +55,68 @@ function drawApproxVoltageContour(canvasOverlay, params) {
             }
         }
     }
-    document.getElementById("refresh-time").innerHTML = (new Date() - timeStart);
+	self.postMessage({'imageData': imageData});
+	
+}, false);
+
+/*
+ * HSV to RGB color conversion
+ *
+ * H runs from 0 to 360 degrees
+ * S and V run from 0 to 1
+ *
+ * Ported from the excellent java algorithm by Eugene Vishnevsky at:
+ * http://www.cs.rit.edu/~ncs/color/t_convert.html
+ */
+function hsvToRgb(h, s, v) {
+    var r, g, b;
+    var i;
+    var f, p, q, t;
+    // Make sure our arguments stay in-range
+    h = Math.max(0, Math.min(360, h));
+    ////s = Math.max(0, Math.min(1, s));
+    ////v = Math.max(0, Math.min(1, v));
+    /****if(s == 0) {
+			// Achromatic (grey)
+			r = g = b = v;
+			return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+			}****/
+    h /= 60; // sector 0 to 5
+    i = Math.floor(h);
+    f = h - i; // factorial part of h
+    p = v * (1 - s);
+    q = v * (1 - s * f);
+    t = v * (1 - s * (1 - f));
+    switch (i) {
+        case 0:
+            r = v;
+            g = t;
+            b = p;
+            break;
+        case 1:
+            r = q;
+            g = v;
+            b = p;
+            break;
+        case 2:
+            r = p;
+            g = v;
+            b = t;
+            break;
+        case 3:
+            r = p;
+            g = q;
+            b = v;
+            break;
+        case 4:
+            r = t;
+            g = p;
+            b = v;
+            break;
+        default: // case 5:
+            r = v;
+            g = p;
+            b = q;
+    }
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
