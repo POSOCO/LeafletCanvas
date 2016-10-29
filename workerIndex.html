@@ -277,7 +277,7 @@
                      error(x,y)= SourcePUError * e^(- damping factor * distance of the source from (x,y) position)
                      error(x,y) = SourcePUError * e^((-alpha)*sqrt(x^2+y^2));
                      */
-                    errorContributions[k] = sourcePUError * Math.exp(-alpha * npx * Math.sqrt(Math.pow(sourcePixelLocations[k].x - x, 2) + Math.pow(npxRatioSquare * sourcePixelLocations[k].y - y, 2)));
+                    errorContributions[k] = sourcePUError * Math.exp(-alpha * npx * Math.sqrt(Math.pow(sourcePixelLocations[k].x - x, 2) + Math.pow(sourcePixelLocations[k].y - y, 2)));
                 }
                 //calculate the resultant error from all contributions by considering the contribution that has the highest absolute value
                 var resultantError = errorContributions[0];
