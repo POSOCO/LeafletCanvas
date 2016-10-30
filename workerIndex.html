@@ -400,16 +400,13 @@
             .addTo(leafletMap);
 
     //Initialise the masking canvas
-    var maskCanvas_ = L.canvasOverlay()
+    var maskCanvasLayer = L.canvasOverlay()
             .params({"stateShapes": [wrBorderGeo.features]})
             .drawing(drawingOnMask)
             .addTo(leafletMap);
 
     //Initialising the videoPlayer Canvas
     videoCanvasCtx_ = borderCanvasLayer.canvas().getContext("2d");
-
-    //maskCanvas_.width = borderCanvasLayer.canvas().width;
-    //maskCanvas_.height = borderCanvasLayer.canvas().height;
 
     //draw markers for sources
     var markers = [];
@@ -461,17 +458,17 @@
     };
     L.control.layers(baseMaps, overlayMaps).addTo(leafletMap);
 
-    //borderCanvasLayer.redraw();
+    maskCanvasLayer.redraw();
 
     function drawingOnCanvas(canvasOverlay, params) {
-
+		
     }
 
     function drawingOnMask(canvasOverlay, params) {
         var ctx = canvasOverlay.canvas().getContext("2d");
         //clear the mask canvas
         ctx.clearRect(0, 0, canvasOverlay.canvas().width, canvasOverlay.canvas().height);
-        ctx.fillStyle = "rgba(255,255,255, 0.3)";
+        ctx.fillStyle = "rgba(255,255,255, 0.1)";
         ctx.strokeStyle = "rgba(255,116,0, 0.1)";
         for (var p = 0; p < params.options.stateShapes.length; p++) {
             for (var i = 0; i < params.options.stateShapes[p].length; i++) {
@@ -545,6 +542,10 @@
         var worker = new Worker(window.URL.createObjectURL(blob));
 
         worker.addEventListener('message', function (e) {
+			var topLeft = canvasOverlay._map.containerPointToLayerPoint([0, 0]);
+			L.DomUtil.setPosition(canvasOverlay.canvas(), topLeft);
+			L.DomUtil.setPosition(maskCanvasLayer.canvas(), topLeft);
+			
             console.log("Data received from worker");
             //console.log(e.data);
             borderCanvasLayer.canvas().getContext('2d').putImageData(e.data.imageData, 0, 0);

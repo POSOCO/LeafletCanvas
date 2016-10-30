@@ -94,8 +94,10 @@ L.CanvasOverlay = L.Class.extend({
         this._canvas.height = resizeEvent.newSize.y;
     },
     _reset: function () {
+		/*
         var topLeft = this._map.containerPointToLayerPoint([0, 0]);
         L.DomUtil.setPosition(this._canvas, topLeft);
+		*/
         this._redraw();
     },
 

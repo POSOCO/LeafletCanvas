@@ -315,9 +315,11 @@
     borderCanvasLayer.redraw();
 
     function drawingOnCanvas(canvasOverlay, params) {
+		//re-setting the canvas position which was commented in the Leaflet source
+		L.DomUtil.setPosition(canvasOverlay.canvas(), canvasOverlay._map.containerPointToLayerPoint([0, 0]));
         var ctx = params.canvas.getContext('2d');
         ctx.clearRect(0, 0, params.canvas.width, params.canvas.height);
-        ctx.fillStyle = "rgba(255,255,255, 0.3)";
+        ctx.fillStyle = "rgba(255,255,255, 0.1)";
         ctx.strokeStyle = "rgba(255,116,0, 0.1)";
         for (var p = 0; p < params.options.stateShapes.length; p++) {
             for (var i = 0; i < params.options.stateShapes[p].length; i++) {
