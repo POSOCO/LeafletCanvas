@@ -5,7 +5,6 @@ var cachedTimes_ = [];
 var cachedSources_ = [];
 var videoTimingVar_;
 var frameIterator_ = 0;
-var videoCanvas_ = document.getElementById("videoCanvas");
 var videoCanvasCtx_;
 var videoPlayInterval_ = 200;
 //Video Timing function

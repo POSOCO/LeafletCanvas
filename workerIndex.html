@@ -18,6 +18,13 @@
             background-color: #333;
         }
 
+        #maskCanvas {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            pointer-events: none;
+        }
+
         .map-container {
             position: relative;
             display: inline-block;
@@ -88,7 +95,7 @@
 
 <div class="map-container">
     <div id="map"></div>
-    <!--<canvas id="videoCanvas"></canvas>-->
+    <!--<canvas id="maskCanvas"></canvas>-->
     <div style="position: absolute;display: inline-block;font-style: italic;color: #aaaaaa;z-index: 1000;width: 50%;height: 30px;bottom: 0px;">
         <span>Refresh time - </span><span id="refresh-time">NA</span><span> milli secs</span>
     </div>
@@ -242,132 +249,135 @@
 <script src="index-csv.js" charset="utf-8"></script>
 <script id="worker1" type="javascript/worker">
     // This script won't be parsed by JS engines because its type is javascript/worker.
-    self.addEventListener('message', function(e) {
-	console.log(e.data);
-  var data = e.data;
-  var cmd = data.cmd;
-  if(cmd != "render"){
-	  self.postMessage({'error': "unknown command..."});
-  }
-  var width = data.width;
-  var height = data.height;
-  var imageData = data.imageData.data;
-  var sources = data.sources;
-  var sourcePixelLocations = data.sourcePixelLocations;
-  var alpha = data.alpha;
-  var npx = data.npx;
-  var npxRatioSquare = data.npxRatioSquare;
-  var hotPU = data.hotPU;
-  var coolPU = data.coolPU;
-  var transparency = data.transparency;
-  
-  for (var x = 0; x < width; x++) {
-        for (var y = 0; y < height; y++) {
-            var index = 4 * (x + y * width);
-            if (imageData[index] > 0) {
-                //calculate the error contribution from each source and store in an array
-                var errorContributions = [];
-                for (var k = 0; k < sources.length; k++) {
-                    var sourcePU = sources[k][2];
-                    var sourcePUError = sourcePU - 1;
-                    var sourcePtLat = sources[k][0];
-                    var sourcePtLng = sources[k][1];
-                    /*
-                     calculate error contribution from this source
-                     error(x,y)= SourcePUError * e^(- damping factor * distance of the source from (x,y) position)
-                     error(x,y) = SourcePUError * e^((-alpha)*sqrt(x^2+y^2));
-                     */
-                    errorContributions[k] = sourcePUError * Math.exp(-alpha * npx * Math.sqrt(Math.pow(sourcePixelLocations[k].x - x, 2) + Math.pow(sourcePixelLocations[k].y - y, 2)));
-                }
-                //calculate the resultant error from all contributions by considering the contribution that has the highest absolute value
-                var resultantError = errorContributions[0];
-                for (var p = 0; p < errorContributions.length; p++) {
-                    if (Math.abs(errorContributions[p]) > Math.abs(resultantError)) {
-                        resultantError = errorContributions[p];
+    self.addEventListener('message', function (e) {
+        var data = e.data;
+        var cmd = data.cmd;
+        if (cmd != "render") {
+            self.postMessage({'error': "unknown command..."});
+        }
+        var width = data.width;
+        var height = data.height;
+        var imageData = data.imageData.data;
+        var sources = data.sources;
+        var sourcePixelLocations = data.sourcePixelLocations;
+        var alpha = data.alpha;
+        var npx = data.npx;
+        var npxRatioSquare = data.npxRatioSquare;
+        var hotPU = data.hotPU;
+        var coolPU = data.coolPU;
+        var transparency = data.transparency;
+
+        for (var x = 0; x < width; x++) {
+            for (var y = 0; y < height; y++) {
+                var index = 4 * (x + y * width);
+                if (imageData[index] > 0) {
+                    //calculate the error contribution from each source and store in an array
+                    var errorContributions = [];
+                    for (var k = 0; k < sources.length; k++) {
+                        var sourcePU = sources[k][2];
+                        var sourcePUError = sourcePU - 1;
+                        /*
+                         calculate error contribution from this source
+                         error(x,y)= SourcePUError * e^(- damping factor * distance of the source from (x,y) position)
+                         error(x,y) = SourcePUError * e^((-alpha)*sqrt(x^2+y^2));
+                         */
+                        errorContributions[k] = sourcePUError * Math.exp(-alpha * npx * Math.sqrt(Math.pow(sourcePixelLocations[k].x - x, 2) + npxRatioSquare * Math.pow(sourcePixelLocations[k].y - y, 2)));
                     }
+                    //calculate the resultant error from all contributions by considering the contribution that has the highest absolute value
+                    var resultantError = errorContributions[0];
+                    for (var p = 0; p < errorContributions.length; p++) {
+                        if (Math.abs(errorContributions[p]) > Math.abs(resultantError)) {
+                            resultantError = errorContributions[p];
+                        }
+                    }
+                    if (resultantError + 1 > hotPU) {
+                        resultantError = hotPU - 1;
+                    } else if (resultantError + 1 < coolPU) {
+                        resultantError = coolPU - 1;
+                    }
+                    //Now paint according to this error value
+                    var resultantHue = 240 * ((1 + resultantError - coolPU) / (hotPU - coolPU));
+                    var resultColor = hsvToRgb(240 - resultantHue, 1, 1);
+                    imageData[index] = resultColor[0];
+                    imageData[index + 1] = resultColor[1];
+                    imageData[index + 2] = resultColor[2];
+                    imageData[index + 3] = Math.round(transparency * 255);
                 }
-                if (resultantError + 1 > hotPU) {
-                    resultantError = hotPU - 1;
-                } else if (resultantError + 1 < coolPU) {
-                    resultantError = coolPU - 1;
-                }
-                //Now paint according to this error value
-                var resultantHue = 240 * ((1 + resultantError - coolPU) / (hotPU - coolPU));
-                var resultColor = hsvToRgb(240 - resultantHue, 1, 1);
-                imageData[index] = resultColor[0];
-                imageData[index + 1] = resultColor[1];
-                imageData[index + 2] = resultColor[2];
-                imageData[index + 3] = Math.round(transparency*255);
             }
         }
-    }
-	data.imageData.data = imageData;
-	self.postMessage({'imageData': data.imageData});
-	
-}, false);
+        data.imageData.data = imageData;
+        self.postMessage({'imageData': data.imageData});
 
-/*
- * HSV to RGB color conversion
- *
- * H runs from 0 to 360 degrees
- * S and V run from 0 to 1
- *
- * Ported from the excellent java algorithm by Eugene Vishnevsky at:
- * http://www.cs.rit.edu/~ncs/color/t_convert.html
- */
-function hsvToRgb(h, s, v) {
-    var r, g, b;
-    var i;
-    var f, p, q, t;
-    // Make sure our arguments stay in-range
-    h = Math.max(0, Math.min(360, h));
-    ////s = Math.max(0, Math.min(1, s));
-    ////v = Math.max(0, Math.min(1, v));
-    /****if(s == 0) {
+    }, false);
+
+    /*
+     * HSV to RGB color conversion
+     *
+     * H runs from 0 to 360 degrees
+     * S and V run from 0 to 1
+     *
+     * Ported from the excellent java algorithm by Eugene Vishnevsky at:
+     * http://www.cs.rit.edu/~ncs/color/t_convert.html
+     */
+    function hsvToRgb(h, s, v) {
+        var r, g, b;
+        var i;
+        var f, p, q, t;
+        // Make sure our arguments stay in-range
+        h = Math.max(0, Math.min(360, h));
+        ////s = Math.max(0, Math.min(1, s));
+        ////v = Math.max(0, Math.min(1, v));
+        /****if(s == 0) {
 			// Achromatic (grey)
 			r = g = b = v;
 			return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 			}****/
-    h /= 60; // sector 0 to 5
-    i = Math.floor(h);
-    f = h - i; // factorial part of h
-    p = v * (1 - s);
-    q = v * (1 - s * f);
-    t = v * (1 - s * (1 - f));
-    switch (i) {
-        case 0:
-            r = v;
-            g = t;
-            b = p;
-            break;
-        case 1:
-            r = q;
-            g = v;
-            b = p;
-            break;
-        case 2:
-            r = p;
-            g = v;
-            b = t;
-            break;
-        case 3:
-            r = p;
-            g = q;
-            b = v;
-            break;
-        case 4:
-            r = t;
-            g = p;
-            b = v;
-            break;
-        default: // case 5:
-            r = v;
-            g = p;
-            b = q;
+        h /= 60; // sector 0 to 5
+        i = Math.floor(h);
+        f = h - i; // factorial part of h
+        p = v * (1 - s);
+        q = v * (1 - s * f);
+        t = v * (1 - s * (1 - f));
+        switch (i) {
+            case 0:
+                r = v;
+                g = t;
+                b = p;
+                break;
+            case 1:
+                r = q;
+                g = v;
+                b = p;
+                break;
+            case 2:
+                r = p;
+                g = v;
+                b = t;
+                break;
+            case 3:
+                r = p;
+                g = q;
+                b = v;
+                break;
+            case 4:
+                r = t;
+                g = p;
+                b = v;
+                break;
+            default: // case 5:
+                r = v;
+                g = p;
+                b = q;
+        }
+        return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
     }
-    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-}
- </script>
+
+
+
+
+
+
+</script>
 <script>
     // All the geoJSONs are copied from http://www.partners-popdev.org/wp-content/themes/original-child/vendor/Geojson/
 
@@ -383,13 +393,24 @@ function hsvToRgb(h, s, v) {
     mapStackTileLayer.addTo(leafletMap);
     //create geoJSON border by svg
     //L.geoJson(statesData).addTo(leafletMap);
+
     var borderCanvasLayer = L.canvasOverlay()
             .params({"stateShapes": [wrBorderGeo.features]})
             .drawing(drawingOnCanvas)
             .addTo(leafletMap);
-    //videoCanvas_.width = borderCanvasLayer.canvas().width;
-    //videoCanvas_.height = borderCanvasLayer.canvas().height;
+
+    //Initialise the masking canvas
+    var maskCanvas_ = L.canvasOverlay()
+            .params({"stateShapes": [wrBorderGeo.features]})
+            .drawing(drawingOnMask)
+            .addTo(leafletMap);
+
+    //Initialising the videoPlayer Canvas
     videoCanvasCtx_ = borderCanvasLayer.canvas().getContext("2d");
+
+    //maskCanvas_.width = borderCanvasLayer.canvas().width;
+    //maskCanvas_.height = borderCanvasLayer.canvas().height;
+
     //draw markers for sources
     var markers = [];
     var myIcon = L.divIcon({
@@ -440,11 +461,16 @@ function hsvToRgb(h, s, v) {
     };
     L.control.layers(baseMaps, overlayMaps).addTo(leafletMap);
 
-    borderCanvasLayer.redraw();
+    //borderCanvasLayer.redraw();
 
     function drawingOnCanvas(canvasOverlay, params) {
-        var ctx = params.canvas.getContext('2d');
-        ctx.clearRect(0, 0, params.canvas.width, params.canvas.height);
+
+    }
+
+    function drawingOnMask(canvasOverlay, params) {
+        var ctx = canvasOverlay.canvas().getContext("2d");
+        //clear the mask canvas
+        ctx.clearRect(0, 0, canvasOverlay.canvas().width, canvasOverlay.canvas().height);
         ctx.fillStyle = "rgba(255,255,255, 0.3)";
         ctx.strokeStyle = "rgba(255,116,0, 0.1)";
         for (var p = 0; p < params.options.stateShapes.length; p++) {
@@ -478,18 +504,19 @@ function hsvToRgb(h, s, v) {
                     }
                 }
             }
-            drawWorkerApproxVoltageContour(canvasOverlay, params);
         }
+        var borderImageData = ctx.getImageData(0, 0, params.canvas.width, params.canvas.height);
+        ctx.clearRect(0, 0, canvasOverlay.canvas().width, canvasOverlay.canvas().height);
+        drawWorkerApproxVoltageContour(borderImageData);
     }
 
-    function drawWorkerApproxVoltageContour(canvasOverlay, params) {
+    function drawWorkerApproxVoltageContour(imageData) {
+        var canvasOverlay = borderCanvasLayer;
         var timeStart = new Date();
         var hotPU = hotPU_;
         var coolPU = coolPU_;
-        var ctx = params.canvas.getContext('2d');
-        var imageData = params.canvas.getContext('2d').getImageData(0, 0, params.canvas.width, params.canvas.height);
-        var width = params.canvas.width;
-        var height = params.canvas.height;
+        var width = borderCanvasLayer.canvas().width;
+        var height = borderCanvasLayer.canvas().height;
         var alpha = alpha_;
         var transparency = transparency_;
         //npx = latSpan/canvasWidth; npy = lngSpan/canvasHeight; npxRatioSquare = npy*npy/(npx*npx);
@@ -509,22 +536,34 @@ function hsvToRgb(h, s, v) {
             }
             sourcePixelLocations.push(canvasOverlay._map.latLngToContainerPoint([sources[i][0], sources[i][1]]));
         }
-		
-		var blob = new Blob([
-			document.querySelector('#worker1').textContent
-		], { type: "text/javascript" })
 
-		// Note: window.webkitURL.createObjectURL() in Chrome 10+.
-		var worker = new Worker(window.URL.createObjectURL(blob));
-		
-		worker.addEventListener('message', function(e) {
-			console.log("Data from worker is ");
-			console.log(e.data);
-			borderCanvasLayer.canvas().getContext('2d').putImageData(e.data.imageData, 0, 0);
-		}, false);
-		var payload = {'cmd': 'render', 'width': width, 'height': height, 'imageData': imageData, 'sources': sources, 'sourcePixelLocations': sourcePixelLocations, 'npx': npx, 'npxRatioSquare': npxRatioSquare, 'hotPU': 1.05, 'coolPU': 0.95, 'transparency':transparency};
-		worker.postMessage(payload);
-		
+        var blob = new Blob([
+            document.querySelector('#worker1').textContent
+        ], {type: "text/javascript"});
+
+        // Note: window.webkitURL.createObjectURL() in Chrome 10+.
+        var worker = new Worker(window.URL.createObjectURL(blob));
+
+        worker.addEventListener('message', function (e) {
+            console.log("Data received from worker");
+            //console.log(e.data);
+            borderCanvasLayer.canvas().getContext('2d').putImageData(e.data.imageData, 0, 0);
+        }, false);
+        var payload = {
+            'cmd': 'render',
+            'width': width,
+            'height': height,
+            'imageData': imageData,
+            'sources': sources,
+            'sourcePixelLocations': sourcePixelLocations,
+            'npx': npx,
+            'npxRatioSquare': npxRatioSquare,
+            'hotPU': hotPU,
+            'coolPU': coolPU,
+            'transparency': transparency,
+            'alpha': alpha
+        };
+        worker.postMessage(payload);
         //document.getElementById("refresh-time").innerHTML = (new Date() - timeStart);
     }
 
