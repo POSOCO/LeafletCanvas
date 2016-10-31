@@ -377,6 +377,7 @@
 
 
 
+
 </script>
 <script>
     // All the geoJSONs are copied from http://www.partners-popdev.org/wp-content/themes/original-child/vendor/Geojson/
@@ -460,8 +461,12 @@
 
     maskCanvasLayer.redraw();
 
+    // Note: window.webkitURL.createObjectURL() in Chrome 10+.
+    var renderWorker_;
+    var renderStatus_ = {"isWorking": false};
+
     function drawingOnCanvas(canvasOverlay, params) {
-		
+
     }
 
     function drawingOnMask(canvasOverlay, params) {
@@ -538,17 +543,21 @@
             document.querySelector('#worker1').textContent
         ], {type: "text/javascript"});
 
+        if (typeof renderWorker_ != 'undefined' && renderStatus_.isWorking == true) {
+            renderWorker_.terminate();
+        }
         // Note: window.webkitURL.createObjectURL() in Chrome 10+.
-        var worker = new Worker(window.URL.createObjectURL(blob));
+        renderWorker_ = new Worker(window.URL.createObjectURL(blob));
 
-        worker.addEventListener('message', function (e) {
-			var topLeft = canvasOverlay._map.containerPointToLayerPoint([0, 0]);
-			L.DomUtil.setPosition(canvasOverlay.canvas(), topLeft);
-			L.DomUtil.setPosition(maskCanvasLayer.canvas(), topLeft);
-			
+        renderWorker_.addEventListener('message', function (e) {
+            var topLeft = canvasOverlay._map.containerPointToLayerPoint([0, 0]);
+            L.DomUtil.setPosition(canvasOverlay.canvas(), topLeft);
+            L.DomUtil.setPosition(maskCanvasLayer.canvas(), topLeft);
+
             console.log("Data received from worker");
             //console.log(e.data);
             borderCanvasLayer.canvas().getContext('2d').putImageData(e.data.imageData, 0, 0);
+            renderStatus_.isWorking = false;
         }, false);
         var payload = {
             'cmd': 'render',
@@ -564,7 +573,8 @@
             'transparency': transparency,
             'alpha': alpha
         };
-        worker.postMessage(payload);
+        renderWorker_.postMessage(payload);
+        renderStatus_.isWorking = true;
         //document.getElementById("refresh-time").innerHTML = (new Date() - timeStart);
     }
 
