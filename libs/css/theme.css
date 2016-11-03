@@ -1,37 +1,72 @@
 html, body {
-    background-color: #202020;
+    background-color: #0B0B0B;
     color: #A4A4A4;
+    font-family: 'Roboto', sans-serif;
 }
 
-.substation-list-name, .sort-clicker {
-    text-decoration: none;
-    color: #A4A4A4;
+.substation-list-name {
+    color: inherit;
+}
+
+tr:hover, .substation-list-name:hover {
+    color: #ffffff;
 }
 
 a {
-    color: #A4A4A4;
-    font-size: 0.8em;
+    color: #1891E4;
+}
+
+a:hover {
+    color: #a3d4f5;
+}
+
+.pagination > li {
+    font-size: 0.9em;
 }
 
 .sort-clicker {
-    color: #35A7C9;
-}
-
-button {
-    background-color: transparent;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    border-radius: 4px;
-    color: #FAE2E3;
-    text-decoration: none;
-    cursor: pointer;
-    border: 1px solid #35A7C9;
-    font-weight: 300;
-    padding: 8px 8px;
+    color: #1891E4;
     text-transform: uppercase;
 }
 
+input {
+    padding-left: 5px;
+    background-color: inherit;
+    font-family: inherit;
+    color: #e6e6e6;
+    border: 2px solid #e6e6e6;
+}
+
+#controlInputs input {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    background-color: inherit;
+    font-family: inherit;
+    font-size: large;
+    color: #e6e6e6;
+    border: 2px solid #e6e6e6;
+}
+
+button {
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    background-color: transparent;
+    cursor: pointer;
+    color: inherit;
+    /*border: 2px solid #1891E4;*/
+    font-weight: lighter;
+    padding: 8px 8px;
+    text-transform: uppercase;
+    border: 2px solid #1891E4;
+}
+
 button:hover {
-    background: #35A7C9;
+    background: #1891E4;
     box-shadow: 0px 0px 1px #777;
+}
+
+#fileInput{
+
 }
