@@ -6,6 +6,7 @@
     <link rel="shortcut icon" type="image/ico"
           href="https://raw.githubusercontent.com/POSOCO/LeafletCanvas/gh-pages/assets/favicon.ico"/>
     <link rel="stylesheet" type="text/css" href="libs/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="libs/css/theme.css">
     <style>
         html, body {
             height: 100%;
@@ -157,7 +158,7 @@
         <tr dir-paginate="source in sources | orderBy:sortType:sortReverse | filter:searchLine | itemsPerPage:pageSize">
             <td>{{ source.sNo }}</td>
             <td style="font-size: 0.95em"><a href="#" ng-click="openMarkerPopup(source.sNo - 1)"
-                                             style="text-decoration: none;color: black">{{
+                                             class="substation-list-name">{{
                 source.name }}</a>
             </td>
             <td>{{ source.voltage }}</td>
@@ -194,17 +195,16 @@
     <span id="playbackStatusPaused"></span>
     <span style="padding-left:20px;"></span>
     <input id="jumpToFrameInput" type="number" value="0" style="width:45px;padding-left: 5px"/>
-    <button onclick="jumpToFrameGUI()" style="padding: 2px">JUMP TO MINUTE</button>
+    <button onclick="jumpToFrameGUI()">JUMP TO MINUTE</button>
     <span style="padding-left:20px;"></span>
     <input id="frameRateInput" type="number" value="5" style="width:35px;padding-left: 5px"/>
-    <button onclick="setFrameRateGUI()" style="padding: 2px">SET MINUTE RATE</button>
+    <button onclick="setFrameRateGUI()">SET MINUTE RATE</button>
     <br><br>
     <span style="padding-left:15px;"></span>
     <button onclick="startFramePlaying()">PLAY CACHED</button>
     <button onclick="pauseFramePlaying()">PAUSE CACHED</button>
     <span style="padding-left:15px;"></span>
-    <input id="cachePlayIntervalInput" type="number" min="30" max="1000" value="200" placeholder="cacheInterval"
-           style="padding-left: 5px">
+    <input id="cachePlayIntervalInput" type="number" min="30" max="1000" value="200" placeholder="cacheInterval">
     <button id="setCacheIntervalButton" onclick="setCachePlayInterval()">SET CACHE PLAYBACK INTERVAL</button>
     <br><br>
     <span style="padding-left:15px;"></span>
@@ -378,6 +378,8 @@
 
 
 
+
+
 </script>
 <script>
     // All the geoJSONs are copied from http://www.partners-popdev.org/wp-content/themes/original-child/vendor/Geojson/
@@ -386,6 +388,9 @@
     window.setTimeout(function () {
         angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
     }, 500);
+
+    var renderWorker_;
+    var renderStatus_ = {"isWorking": false};
 
     var osmTileLayer = L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {id: 'map'});
     var mapStackTileLayer = L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png", {id: 'map'});
@@ -461,9 +466,6 @@
 
     maskCanvasLayer.redraw();
 
-    // Note: window.webkitURL.createObjectURL() in Chrome 10+.
-    var renderWorker_;
-    var renderStatus_ = {"isWorking": false};
 
     function drawingOnCanvas(canvasOverlay, params) {
 
