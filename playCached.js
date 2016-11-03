@@ -32,7 +32,7 @@ function getFromVideoFrames() {
     document.getElementById("playbackStatus").innerHTML = timeStringToDisplay;
     document.getElementById("over_map").innerHTML = timeStringToDisplay;
     document.getElementById("playbackStatusPaused").innerHTML = "";
-    angular.element(document.getElementById('voltage-report')).scope().updateSources(cachedSources_[frameIterator_]);
+    (angular.element(document.getElementById('voltage-report')).scope()).updateSources(cachedSources_[frameIterator_]);
     frameIterator_++;
     if (frameIterator_ >= cachedFrames_.length) {
         pauseFramePlaying();
