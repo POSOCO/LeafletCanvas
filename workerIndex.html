@@ -246,9 +246,9 @@
 <script src="libs/csvToArray.js" charset="utf-8"></script>
 <script src="CSVReader.js" charset="utf-8"></script>
 <script src="playCached.js" charset="utf-8"></script>
-<script src="playFromCSV.js" charset="utf-8"></script>
+<script src="playFromCSVAsync.js" charset="utf-8"></script>
 <script src="index-csv.js" charset="utf-8"></script>
-<script id="worker1" type="javascript/worker">
+<script id="worker1" type="javascript">
     // This script won't be parsed by JS engines because its type is javascript/worker.
     self.addEventListener('message', function (e) {
         var data = e.data;
@@ -372,13 +372,6 @@
         }
         return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
     }
-
-
-
-
-
-
-
 
 
 </script>
@@ -556,11 +549,21 @@
             var topLeft = canvasOverlay._map.containerPointToLayerPoint([0, 0]);
             L.DomUtil.setPosition(canvasOverlay.canvas(), topLeft);
             L.DomUtil.setPosition(maskCanvasLayer.canvas(), topLeft);
-
             console.log("Data received from worker");
             //console.log(e.data);
             borderCanvasLayer.canvas().getContext('2d').putImageData(e.data.imageData, 0, 0);
             renderStatus_.isWorking = false;
+            if (window.CustomEvent) {
+                var event = new CustomEvent("newFrameRendered", {
+                    detail: {
+                        message: "rendering is completed",
+                        time: new Date()
+                    },
+                    bubbles: true,
+                    cancelable: true
+                });
+                renderWorker_.dispatchEvent(event);
+            }
         }, false);
         var payload = {
             'cmd': 'render',

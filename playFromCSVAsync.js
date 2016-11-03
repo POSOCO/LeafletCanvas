@@ -1,61 +1,4 @@
-var timingVar_;
-var isBusy_ = false;
-
-//Timing function
-function startFetching() {
-    pauseFetching();
-    console.log("Starting Server Data Fetch", "info");
-    timingVar_ = setInterval(getFromPointsDataServer, 1000);
-}
-
-//Timing function
-function pauseFetching() {
-    console.log("Pausing Server Data Fetch", "warning");
-    clearInterval(timingVar_);
-}
-
-
-//Timing function
-function getFromPointsDataServer() {
-    if (getIsBusy()) {
-        return;
-    }
-    setIsBusy(true);
-    //express server fetch start
-    document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
-    $.get("http://localhost:4542/values?dnapoints=" + "all", function (data, status) {
-        if (status == "success") {
-            //express server fetch stop / finish
-            document.getElementById("wrapper").style.border = "2px solid #999999";
-            //console.log(JSON.parse(data));
-            //We get pointsArray in the order of sources Array
-            var pointsArray = JSON.parse(data);
-            //MODIFY THE sources ARRAY from pointsArray
-            for (var i = 0; i < pointsArray.result.length; i++) {
-                sources[i][2] = (pointsArray.result[i].value * 1.73205080757) / sources[i][4];
-                sources[i][6] = pointsArray.result[i]["status"];
-            }
-            //For now we are just logging the data fetched from server
-            //console.log(pointsArray);
-            console.log(JSON.stringify(pointsArray, null, '\t'));
-            //RUN the plotting algorithm
-            borderCanvasLayer.redraw();
-            setIsBusy(false);
-        }
-    });
-}
-
-//isBusy getter
-function getIsBusy() {
-    return isBusy_;
-}
-
-//isBusy setter
-function setIsBusy(val) {
-    isBusy_ = val;
-}
-
-var frameTimingVar_;
+var isPlayingCSV_ = false;
 var frameToFetch_ = 0;
 var framesToIncrement_ = 5;
 
@@ -89,15 +32,21 @@ function startFrameFetching() {
     cachedSources_ = [];
     pauseFrameFetching();
     console.log("Starting Frame Data Fetch", "info");
-    frameTimingVar_ = setInterval(getFromFrames, 2000);
+    isPlayingCSV_ = true;
+
+    //set canvas plotting params according to csv
+    setCanvasDrawingParamsFromCSV(frameToFetch_);
+
+    //redraw the canvas
+    maskCanvasLayer.redraw();
 }
 
 //Timing function
 function pauseFrameFetching() {
     //frameToFetch = 0;
+    isPlayingCSV_ = false;
     console.log("Pausing Frame Data Fetch", "warning");
     document.getElementById("playbackStatusPaused").innerHTML = "\t(PlayBack Paused)";
-    clearInterval(frameTimingVar_);
     document.getElementById("videoTimeSlider").min = 0;
     document.getElementById("videoTimeSlider").max = cachedTimes_.length - 1;
     document.getElementById("videoTimeSlider").value = 0;
@@ -106,16 +55,17 @@ function pauseFrameFetching() {
     document.getElementById("videoTimeString").innerHTML = timeStringToDisplay;
 }
 
-var isFrameBusy_ = false;
-
-//Timing function
-function getFromFrames() {
-    if (getIsFrameBusy()) {
-        return;
+function FormatNumberLength(num, length) {
+    var r = num.toString();
+    while (r.length < length) {
+        r = "0" + r;
     }
-    setIsFrameBusy(true);
-    //express frame fetch start
-    //document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
+    return r;
+}
+
+//set canvas plotting params according to csv
+function setCanvasDrawingParamsFromCSV(frameToFetch_) {
+    //Initialising the canvas drawing params for next iteration
     var frameData = timeFrames.frames[frameToFetch_];
     //MODIFY THE sources ARRAY from pointsArray
     for (var i = 0; i < frameData.length; i++) {
@@ -136,39 +86,39 @@ function getFromFrames() {
         }
         sources[i][2] = tempPu;
     }
-    //RUN the plotting algorithm
-    borderCanvasLayer.redraw();
+}
+// listen for newFrameRendered event
+document.addEventListener("newFrameRendered", newFrameRenderListener, false);
+
+// newMessage event handler
+function newFrameRenderListener(e) {
+    //is CSV playing enabled
+    if (isPlayingCSV_ != true) {
+        return;
+    }
+
+    //displaying the plotted CSV metadata like time
     var hours = Math.floor((frameToFetch_) / 60);
     var timeStringToDisplay = FormatNumberLength(hours, 2) + ":" + FormatNumberLength((frameToFetch_ - hours * 60), 2) + " Hrs";
     document.getElementById("playbackStatus").innerHTML = timeStringToDisplay;
     document.getElementById("over_map").innerHTML = timeStringToDisplay;
+
+    //saving the plotted data in array
     cachedFrames_.push(borderCanvasLayer.canvas().getContext("2d").getImageData(0, 0, borderCanvasLayer.canvas().width, borderCanvasLayer.canvas().height));
     cachedTimes_.push(frameToFetch_);
 
+    //incrementing for next iteration
     frameToFetch_ += framesToIncrement_;
     document.getElementById("playbackStatusPaused").innerHTML = "";
     if (frameToFetch_ >= 1440) {
-        jumpToFrame(0);
+        //if next frame is not feasible, then pause frame fetching
         pauseFrameFetching();
-    }
-    setIsFrameBusy(false);
-    //express server fetch stop / finish
-    //document.getElementById("wrapper").style.border = "2px solid #999999";
-}
-//isBusy getter
-function getIsFrameBusy() {
-    return isFrameBusy_;
-}
+        jumpToFrame(0);
+    } else {
+        //if next frame number is feasible then //set canvas plotting params according to csv of next iteration
+        setCanvasDrawingParamsFromCSV(frameToFetch_);
 
-//isBusy setter
-function setIsFrameBusy(val) {
-    isFrameBusy_ = val;
-}
-
-function FormatNumberLength(num, length) {
-    var r = num.toString();
-    while (r.length < length) {
-        r = "0" + r;
+        // now redraw the canvas
+        maskCanvasLayer.redraw();
     }
-    return r;
 }

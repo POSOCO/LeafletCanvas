@@ -11,4 +11,5 @@ The link for the app demo is [here](https://posoco.github.io/LeafletCanvas)
 5. Create a slider that acts as a playback seeker for the Cached Images playback -- done
 6. Update PU voltages also in the sources table while doing the cached image playback
 7. Dismiss all currently running renderer workers if a new renderer worker is initiated --DONE BY USING A SINGLE GLOBAL WORKER
-8. Solve Canvas placement problem if a renderer worker is already working a new renderer is initiated
+8. Get the render worker status from worker itself instead of getting from a global variable
+9. Solve Canvas placement problem if a renderer worker is already working a new renderer is initiated
