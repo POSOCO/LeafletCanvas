@@ -553,6 +553,8 @@
             //console.log(e.data);
             borderCanvasLayer.canvas().getContext('2d').putImageData(e.data.imageData, 0, 0);
             renderStatus_.isWorking = false;
+            //update elapsed time since last render
+            document.getElementById("refresh-time").innerHTML = (new Date() - timeStart);
             if (window.CustomEvent) {
                 var event = new CustomEvent("newFrameRendered", {
                     detail: {
@@ -562,7 +564,7 @@
                     bubbles: true,
                     cancelable: true
                 });
-                renderWorker_.dispatchEvent(event);
+                document.dispatchEvent(event);
             }
         }, false);
         var payload = {

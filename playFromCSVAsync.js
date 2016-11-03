@@ -26,6 +26,10 @@ function setFrameRateGUI() {
 
 //Timing function
 function startFrameFetching() {
+    if(isPlayingCSV_ == true){
+        //already playing CSV
+        return;
+    }
     //videoCanvas_.getContext("2d").clearRect(0, 0, borderCanvasLayer.canvas().width, borderCanvasLayer.canvas().height);
     cachedFrames_ = [];
     cachedTimes_ = [];
