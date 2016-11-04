@@ -224,7 +224,7 @@ function drawWorkerApproxVoltageContour(imageData) {
 
     // set the render complete handler function
     renderWorker_.addEventListener('message', function (e) {
-        //get the map top left pixel location and move the mask canvas and main canvas to this location
+        // get the map top left pixel location and move the mask canvas and main canvas to this location
         var topLeft = canvasOverlay._map.containerPointToLayerPoint([0, 0]);
         L.DomUtil.setPosition(canvasOverlay.canvas(), topLeft);
         L.DomUtil.setPosition(maskCanvasLayer.canvas(), topLeft);
