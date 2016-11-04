@@ -38,28 +38,28 @@ input {
 }
 
 #controlInputs input {
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
     padding-left: 5px;
     background-color: inherit;
     font-family: inherit;
-    font-size: large;
     color: #e6e6e6;
-    border: 2px solid #e6e6e6;
+    border: 1px solid #e6e6e6;
+    font-size: 0.95em;
 }
 
 button {
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    border-radius: 4px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
     background-color: transparent;
     cursor: pointer;
     color: inherit;
     /*border: 2px solid #1891E4;*/
     font-weight: lighter;
-    padding: 8px 8px;
+    padding: 6px 6px;
     text-transform: uppercase;
-    border: 2px solid #1891E4;
+    border: 1px solid #1891E4;
 }
 
 button:hover {
