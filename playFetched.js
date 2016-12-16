@@ -24,18 +24,20 @@ function getFromPointsDataServer() {
     //express server fetch start
     //document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
     for (var i = 0; i < sources.length; i++) {
-        $.get("//localhost:62448/api/values/real?pnt=" + sources[i][3], (function () {
+        $.get("http//localhost:62448/api/values/real?pnt=" + sources[i][3], (function () {
             return function (data, status) {
                 if (status == "success") {
                     //express server fetch stop / finish
-                    document.getElementById("wrapper").style.border = "2px solid #999999";
+                    //document.getElementById("wrapper").style.border = "2px solid #999999";
                     //console.log(JSON.parse(data));
                     //We get point data
                     var pointData = JSON.parse(data);
 
                     //MODIFY THE sources ARRAY from pointData
-                    sources[i][2] = (pointData["dval"] * 1.73205080757) / sources[i][4];
-                    sources[i][6] = pointData["status"];
+                    if(pointData != null){
+                        sources[i][2] = (pointData["dval"] * 1.73205080757) / sources[i][4];
+                        sources[i][6] = pointData["status"];
+                    }
                     //For now we are just logging the data fetched from server
                     //console.log(pointData);
                     console.log(JSON.stringify(pointData, null, '\t'));
