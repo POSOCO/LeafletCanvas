@@ -24,7 +24,7 @@ function getFromPointsDataServer() {
     //express server fetch start
     //document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
     for (var i = 0; i < sources.length; i++) {
-        $.get("http://localhost:62448/api/values/real?pnt=" + sources[i][3], (function () {
+        $.get("//localhost:62448/api/values/real?pnt=" + sources[i][3], (function () {
             return function (data, status) {
                 if (status == "success") {
                     //express server fetch stop / finish
