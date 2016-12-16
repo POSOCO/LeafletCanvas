@@ -105,8 +105,6 @@
     <button id="mapViewResetButton" onclick="resetMapView()">RESET MAP VIEW</button>
 </div>
 <div id="controlInputs" style="margin:10px 5px 5px 10px;"><!--top right bottom left-->
-    <!--<button onclick="startFetching()">StartFetching</button>-->
-    <!--<button onclick="pauseFetching()">StopFetching</button>-->
     <span style="padding-left:15px;"></span>
     <button onclick="startFrameFetching()">PLAY</button>
     <button onclick="pauseFrameFetching()">PAUSE</button>
@@ -129,6 +127,9 @@
     <span style="padding-left:15px;"></span>
     <span>Select the voltage files</span>
     <input type="file" id="fileInput" style="font-size: 0.8em;border:1px solid #999999">
+    <br><br>
+    <button onclick="startFetching()">Start_Real_Fetching</button>
+    <button onclick="pauseFetching()">Stop_Real_Fetching</button>
     <br><br>
     <span style="padding-left:15px;"></span>
     <input id="alphaTextControl" style="width:50px;padding-left: 5px" type="number" value="0.8" step="0.1"/>
@@ -165,6 +166,7 @@
 <script src="CSVReader.js" charset="utf-8"></script>
 <script src="playCached.js" charset="utf-8"></script>
 <script src="playFromCSVAsync.js" charset="utf-8"></script>
+<script src="playFetched.js" charset="utf-8"></script>
 <script src="index-csv.js" charset="utf-8"></script>
 <script id="worker1" type="javascript/worker">
     // This script won't be parsed by JS engines because its type is javascript/worker.
@@ -290,6 +292,7 @@
         }
         return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
     }
+
 
 </script>
 <script src="index-worker.js"></script>
