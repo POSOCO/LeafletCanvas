@@ -1,15 +1,18 @@
 var timingVar_;
 var isBusy_ = false;
+var isPlayingReal_ = false;
 
 //Timing function
 function startFetching() {
     pauseFetching();
     console.log("Starting Server Data Fetch", "info");
+	isPlayingReal_ = true;
     timingVar_ = setInterval(getFromPointsDataServer, 2500);
 }
 
 //Timing function
 function pauseFetching() {
+	isPlayingReal_ = false;
     console.log("Pausing Server Data Fetch", "warning");
     clearInterval(timingVar_);
 }
@@ -20,34 +23,39 @@ function getFromPointsDataServer() {
     if (getIsBusy()) {
         return;
     }
+	angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
+	maskCanvasLayer.redraw();
+	var present_Time = new Date();	
+	document.getElementById("over_map").innerHTML = present_Time.getHours()+":"+present_Time.getMinutes() + ":" + present_Time.getSeconds() + " Hrs";
     setIsBusy(true);
     //express server fetch start
     //document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
     for (var i = 0; i < sources.length; i++) {
-        $.get("http//localhost:62448/api/values/real?pnt=" + sources[i][3], (function () {
+		$.get("http://localhost:62448/api/values/real?pnt=" + sources[i][3], (function (iterInput) {
+			var iter = iterInput;
             return function (data, status) {
+				
                 if (status == "success") {
                     //express server fetch stop / finish
                     //document.getElementById("wrapper").style.border = "2px solid #999999";
                     //console.log(JSON.parse(data));
                     //We get point data
-                    var pointData = JSON.parse(data);
+					//console.log("The iterator is "+iter);
+                    var pointData = data;
 
                     //MODIFY THE sources ARRAY from pointData
-                    if(pointData != null){
-                        sources[i][2] = (pointData["dval"] * 1.73205080757) / sources[i][4];
-                        sources[i][6] = pointData["status"];
-                    }
+                    sources[iter][2] = (pointData["dval"]) / sources[iter][4];
+                    sources[iter][6] = pointData["status"];
                     //For now we are just logging the data fetched from server
                     //console.log(pointData);
-                    console.log(JSON.stringify(pointData, null, '\t'));
+                    //console.log(JSON.stringify(pointData, null, '\t'));
                 }
                 if (i == sources.length - 1) {
                     //RUN the plotting algorithm
-                    maskCanvasLayer.redraw();
+                    //maskCanvasLayer.redraw();
                 }
             }
-        })());
+        })(i));
     }
     setIsBusy(false);
 }
@@ -90,4 +98,18 @@ function getIsBusy() {
 //isBusy setter
 function setIsBusy(val) {
     isBusy_ = val;
+}
+
+document.addEventListener("newFrameRendered", newRealFrameRenderListener, false);
+
+// newMessage event handler
+function newRealFrameRenderListener(e) {
+    /*
+    //is CSV playing enabled
+    if (isPlayingReal_ != true) {
+        return;
+    }
+    */
+	//angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
+	//updateSourcesAngularTable(sources);
 }

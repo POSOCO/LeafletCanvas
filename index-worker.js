@@ -19,7 +19,7 @@ var mapStackTileLayer = L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-li
 var leafletMap = L.map('map').setView([21.14599216495789, 76.343994140625], 6);
 
 // adding tile layer to the map
-mapStackTileLayer.addTo(leafletMap);
+//mapStackTileLayer.addTo(leafletMap);
 
 // create geoJSON svg border
 //L.geoJson(statesData).addTo(leafletMap);
@@ -46,7 +46,7 @@ var myIcon = L.divIcon({
     html: ''
 });
 for (var i = 0; i < sources.length; i++) {
-    markers.push(L.marker([sources[i][0], sources[i][1]], {icon: myIcon}).bindPopup(sources[i][5]));
+    markers.push(L.marker([sources[i][0], sources[i][1]], {icon: myIcon}).bindPopup(i + ". " + sources[i][5] + " " + sources[i][3]));
 }
 var sourceMarkersLayer = L.layerGroup(markers);
 sourceMarkersLayer.addTo(leafletMap);
@@ -202,7 +202,7 @@ function drawWorkerApproxVoltageContour(imageData) {
     // calculate source pixel locations
     var sourcePixelLocations = [];
     for (var i = 0; i < sources.length; i++) {
-        if (sources[i][6] != "OK") {
+        if (sources[i][6] != "OK" && sources[i][6] != "GOOD") {
             sources[i][2] = 1;
         }
         sourcePixelLocations.push(canvasOverlay._map.latLngToContainerPoint([sources[i][0], sources[i][1]]));

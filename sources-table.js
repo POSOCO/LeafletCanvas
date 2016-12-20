@@ -12,7 +12,7 @@ angular.module('voltageSortApp', ['angularUtils.directives.dirPagination'])
                     continue;
                 }
                 var source = sourcesArray[i];
-                if (source[6] != "OK") {
+                if (source[6] != "OK" && source[6] != "GOOD") {
                     continue;
                 }
                 $scope.sources.push({
