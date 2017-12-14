@@ -48,14 +48,22 @@ function drawingOnCanvas(canvasOverlay, params) {
     for (var i = 0; i < sources.length; i++) {
         var sourcePixelPnt = this._map.latLngToContainerPoint(new L.LatLng(sources[i][0], sources[i][1]));
         if (sources[i][6] == "OK" || sources[i][6] == "GOOD") {
-            // The source is good
-            // todo see acceptable voltage values while plotting the circles
             var sourceVoltagePUError = sources[i][2] - 1;
-            if (sourceVoltagePUError > 0.8) {
-                sourceVoltagePUError = 0;
+            if (Math.abs(sourceVoltagePUError) > 0.1) {
+                // The source value is abnormal
+                ctx.beginPath();
+                ctx.fillStyle = 'rgba(120,0,0,' + alpha_ + ')';
+                ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, scalingFactor * 0.008, 0, 2 * Math.PI);
+                ctx.fill();
+                continue;
             }
-            if (sourceVoltagePUError < -0.8) {
-                sourceVoltagePUError = 0;
+            // The source is good
+            // Limit the sourceVoltagePUError to +-0.06 for plotting
+            if (sourceVoltagePUError > 0.06) {
+                sourceVoltagePUError = 0.06;
+            }
+            if (sourceVoltagePUError < -0.06) {
+                sourceVoltagePUError = -0.06;
             }
             var circleColor = 'rgba(24,145,228,' + transparency_ + ')';
             if (sourceVoltagePUError > 0) {
@@ -71,25 +79,29 @@ function drawingOnCanvas(canvasOverlay, params) {
         } else {
             // The source is not good
             ctx.beginPath();
-            ctx.fillStyle = 'rgba(100,100,0,' + alpha_ + ')';
-            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, scalingFactor * 0.01, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(120,120,0,' + alpha_ + ')';
+            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, scalingFactor * 0.008, 0, 2 * Math.PI);
             ctx.fill();
         }
     }
 }
 
-// Initialising the videoPlayer Canvas
-videoCanvasCtx_ = layer.canvas().getContext("2d");
-
 // draw markers for sources on a marker layer
 var markers = [];
 var myIcon = L.divIcon({
-    iconSize: new L.Point(8, 8),
+    iconSize: new L.Point(6, 6),
     html: ''
 });
 for (var i = 0; i < sources.length; i++) {
     markers.push(L.marker([sources[i][0], sources[i][1]], {icon: myIcon}).bindPopup((i + 1) + ". " + sources[i][5] + " " + sources[i][3] + ", " + (sources[i][4] * sources[i][2]).toFixed(2) + " kV"));
+    markers[i]._iterId = i;
 }
+leafletMap.on('popupopen', function (e) {
+    var marker = e.popup._source;
+    var i = marker._iterId;
+    marker._popup.setContent((i + 1) + ". " + sources[i][5] + " " + sources[i][3] + ", " + (sources[i][4] * sources[i][2]).toFixed(2) + " kV");
+});
+
 var sourceMarkersLayer = L.layerGroup(markers);
 sourceMarkersLayer.addTo(leafletMap);
 
