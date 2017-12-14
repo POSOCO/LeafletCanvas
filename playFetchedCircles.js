@@ -24,11 +24,11 @@ function getFromPointsDataServer() {
     }
     angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
     var present_Time = new Date();
-    document.getElementById("over_map").innerHTML = present_Time.getHours() + ":" + present_Time.getMinutes() + ":" + present_Time.getSeconds() + " Hrs";
+    document.getElementById("over_map").innerHTML = makeTwoDigits(present_Time.getHours()) + ":" + makeTwoDigits(present_Time.getMinutes()) + ":" + makeTwoDigits(present_Time.getSeconds()) + " Hrs";
     // keep slider value to minutes
     document.getElementById('videoTimeSlider').value = present_Time.getHours() * 60 + present_Time.getMinutes();
     // set the date string to today
-    modifyDateString(present_Time.getDate() + "-" + (present_Time.getMonth() + 1) + "-" + present_Time.getFullYear());
+    modifyDateString(makeTwoDigits(present_Time.getDate()) + "-" + makeTwoDigits(present_Time.getMonth() + 1) + "-" + present_Time.getFullYear());
     setIsBusy(true);
     //express server fetch start
     //document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
@@ -61,41 +61,53 @@ function getFromPointsDataServer() {
     setIsBusy(false);
 }
 
+
+function fetchDataForDate() {
+    getFromPointsDataServerForDate(document.getElementById("fetchDateInput").innerHTML);
+}
+
 //Timing function
 function getFromPointsDataServerForDate(dateString) {
     if (getIsBusy()) {
         return;
     }
     angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
-    var present_Time = new Date();
-    document.getElementById("over_map").innerHTML = present_Time.getHours() + ":" + present_Time.getMinutes() + ":" + present_Time.getSeconds() + " Hrs";
-    // keep slider value to minutes
-    document.getElementById('videoTimeSlider').value = present_Time.getHours() * 60 + present_Time.getMinutes();
+    var fromTime = new Date();
+    if (dateString != "") {
+        fromTime = new Date(dateString + "T00:00:00");
+    }
+    var fromTimeStr = makeTwoDigits(fromTime.getDate()) + "/" + makeTwoDigits(fromTime.getMonth() + 1) + "/" + fromTime.getFullYear() + "/" + makeTwoDigits(fromTime.getHours()) + ":" + makeTwoDigits(fromTime.getMinutes()) + ":00";
+    var toTime = new Date(fromTime.getTime() + 86400000);
+    var toTimeStr = makeTwoDigits(toTime.getDate()) + "/" + makeTwoDigits(toTime.getMonth() + 1) + "/" + toTime.getFullYear() + "/" + makeTwoDigits(toTime.getHours()) + ":" + makeTwoDigits(fromTime.getMinutes()) + ":00";
     setIsBusy(true);
     //express server fetch start
     //document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
     for (var i = 0; i < sources.length; i++) {
-        $.get("http://localhost:62448/api/values/real?pnt=" + sources[i][3], (function (iterInput) {
+        var fetchUrl = createUrl(document.getElementById("serverBaseAddressInput").value, sources[i][3], 'history', fromTimeStr, toTimeStr, 60, 'average');
+        $.get(fetchUrl, (function (iterInput) {
             var iter = iterInput;
             return function (data, status) {
 
                 if (status == "success") {
-                    //document.getElementById("wrapper").style.border = "2px solid #999999";
                     //console.log(JSON.parse(data));
-                    //We get point data
+                    //We got point data of 1440 minutes of a day
                     //console.log("The iterator is "+iter);
                     var pointData = data;
 
-                    //MODIFY THE sources ARRAY from pointData
-                    sources[iter][2] = (+pointData["dval"]) / sources[iter][4];
-                    sources[iter][6] = pointData["status"];
+                    //MODIFY THE timeFrames Data
+                    //stub
+                    for (var k = 0; k < Math.min(timeFrames.frames.length, pointData.length); k++) {
+                        timeFrames.frames[k][iter] = +pointData[k]["dval"];
+                    }
+                    //todo maintain status frames also
+                    sources[iter][6] = "OK";
                     //For now we are just logging the data fetched from server
                     //console.log(pointData);
                     //console.log(JSON.stringify(pointData, null, '\t'));
                 }
                 if (iter == sources.length - 1) {
-                    //RUN the plotting algorithm
-                    layer.redraw();
+                    // update fetch date
+                    modifyDateString(makeTwoDigits(fromTime.getDate()) + "-" + makeTwoDigits(fromTime.getMonth() + 1) + "-" + fromTime.getFullYear());
                 }
             }
         })(i));
@@ -111,4 +123,24 @@ function getIsBusy() {
 //isBusy setter
 function setIsBusy(val) {
     isBusy_ = val;
+}
+
+function createUrl(serverBaseAddress, pnt, historyType, strtime, endtime, secs, type) {
+    var url = "";
+    if (historyType == "real") {
+        url = serverBaseAddress + "/api/values/" + historyType + "?pnt=" + pnt;
+    } else if (historyType == "history") {
+        url = serverBaseAddress + "/api/values/" + historyType + "?pnt=" + pnt + "&strtime=" + strtime + "&endtime=" + endtime + "&secs=" + secs + "&type=" + type;
+    }
+    //WriteLineConsole(url);
+    return url;
+}
+
+function makeTwoDigits(x) {
+    if (x < 10) {
+        return "0" + x;
+    }
+    else {
+        return x;
+    }
 }
