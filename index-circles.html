@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+    <title>Western Region Voltage Contour</title>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/ico"
+          href="https://raw.githubusercontent.com/POSOCO/LeafletCanvas/gh-pages/assets/favicon.ico"/>
+    <link rel="stylesheet" type="text/css" href="libs/css/arrow-icons.css">
+    <!--<link rel="stylesheet" type="text/css" href="libs/css/roboto.css">-->
+    <link rel="stylesheet" type="text/css" href="libs/css/theme.css">
+    <link rel="stylesheet" type="text/css" href="index.css">
+</head>
+<body>
+<h2>Western Region Voltage Contour</h2>
+
+<div class="map-container">
+    <div id="map"></div>
+    <!--<canvas id="maskCanvas"></canvas>-->
+    <div style="position: absolute;display: inline-block;font-style: italic;color: #aaaaaa;z-index: 1000;width: 50%;height: 30px;bottom: 0px;">
+        <span>Refresh time - </span><span id="refresh-time">NA</span><span> milli secs</span>
+    </div>
+    <p id="over_map" style="font-size: 30px;color: red">00:00 Hrs</p>
+
+    <span id="over_map_date" style="font-style: italic;color: #aaaaaa">Voltage contour on 24-10-2016</span>
+</div>
+
+<div class="container" ng-app="voltageSortApp" ng-controller="voltageSortController" id="voltage-report"
+     style="display: inline-block;width: 27%;vertical-align:top;font-size: 0.85em">
+    <form>
+        <div class="form-group">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search Substation name"
+                       ng-model="searchLine">
+                <label style="margin-left: 25px">Lines per Page</label>
+                <input type="number" min="1" max="1000" class="form-control" ng-model="pageSize">
+            </div>
+        </div>
+    </form>
+    <br>
+    <table>
+        <thead>
+        <tr>
+            <td>
+                <a class="sort-clicker" href="#" ng-click="sortType = 'sNo'; sortReverse = !sortReverse">
+                    SNo
+                    <span ng-show="sortType == 'sNo' && !sortReverse" class="arrow-down"></span>
+                    <span ng-show="sortType == 'sNo' && sortReverse" class="arrow-up"></span>
+                </a>
+            </td>
+            <td>
+                <a class="sort-clicker" href="#" ng-click="sortType = 'name'; sortReverse = !sortReverse">
+                    Substation
+                    <span ng-show="sortType == 'name' && !sortReverse" class="arrow-down"></span>
+                    <span ng-show="sortType == 'name' && sortReverse" class="arrow-up"></span>
+                </a>
+            </td>
+            <td>
+                <a class="sort-clicker" href="#"
+                   ng-click="sortType = 'voltage'; sortReverse = !sortReverse">
+                    Voltage
+                    <span ng-show="sortType == 'voltage' && !sortReverse" class="arrow-down"></span>
+                    <span ng-show="sortType == 'voltage' && sortReverse" class="arrow-up"></span>
+                </a>
+            </td>
+            <td>
+                <a class="sort-clicker" href="#"
+                   ng-click="sortType = 'puVoltage'; sortReverse = !sortReverse">
+                    PU
+                    <span ng-show="sortType == 'puVoltage' && !sortReverse" class="arrow-down"></span>
+                    <span ng-show="sortType == 'puVoltage' && sortReverse" class="arrow-up"></span>
+                </a>
+            </td>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr dir-paginate="source in sources | orderBy:sortType:sortReverse | filter:searchLine | itemsPerPage:pageSize">
+            <td>{{ source.sNo }}</td>
+            <td style="font-size: 0.95em"><a href="#" ng-click="openMarkerPopup(source.sNo - 1)"
+                                             class="substation-list-name">{{
+                source.name }}</a>
+            </td>
+            <td>{{ source.voltage }}</td>
+            <td>{{ source.puVoltage }}</td>
+        </tr>
+        </tbody>
+
+    </table>
+    <dir-pagination-controls
+            max-size="5"
+            direction-links="true"
+            boundary-links="true">
+    </dir-pagination-controls>
+</div>
+
+<br>
+
+<div>
+    <input type="range" id="videoTimeSlider" min="0" max="0" value="0" step="1" style="margin-left:1%;width:50%"
+           onchange="updateVideoTime()">
+    <span id="videoTimeString"></span>
+    <button id="drawSnapshotButton" onclick="paintCachedFrame()">REFRESH</button>
+    <label><input type="checkbox" id="autoRefresh" checked>AutoRefresh</label>
+    <span style="padding-left:15px;"></span>
+    <button id="mapViewResetButton" onclick="resetMapView()">RESET MAP VIEW</button>
+</div>
+<div id="controlInputs" style="margin:10px 5px 5px 10px;"><!--top right bottom left-->
+    <span style="padding-left:15px;"></span>
+    <button onclick="startFrameFetching()">PLAY</button>
+    <button onclick="pauseFrameFetching()">PAUSE</button>
+    <span id="playbackStatus"></span>
+    <span id="playbackStatusPaused"></span>
+    <span style="padding-left:20px;"></span>
+    <input id="jumpToFrameInput" type="number" value="0" style="width:45px;padding-left: 5px"/>
+    <button onclick="jumpToFrameGUI()">JUMP TO MINUTE</button>
+    <span style="padding-left:20px;"></span>
+    <input id="frameRateInput" type="number" value="5" style="width:35px;padding-left: 5px"/>
+    <button onclick="setFrameRateGUI()">SET MINUTE RATE</button>
+    <br><br>
+    <span style="padding-left:15px;"></span>
+    <button onclick="startFramePlaying()">PLAY CACHED</button>
+    <button onclick="pauseFramePlaying()">PAUSE CACHED</button>
+    <span style="padding-left:15px;"></span>
+    <input id="cachePlayIntervalInput" type="number" min="30" max="1000" value="200" placeholder="cacheInterval">
+    <button id="setCacheIntervalButton" onclick="setCachePlayInterval()">SET CACHE PLAYBACK INTERVAL</button>
+    <br><br>
+    <span style="padding-left:15px;"></span>
+    <span>Select the voltage files</span>
+    <input type="file" id="fileInput" style="font-size: 0.8em;border:1px solid #999999">
+    <br><br>
+    <button onclick="startFetching()">Start_Real_Fetching</button>
+    <button onclick="pauseFetching()">Stop_Real_Fetching</button>
+    <br><br>
+    <span style="padding-left:15px;"></span>
+    <input id="alphaTextControl" style="width:50px;padding-left: 5px" type="number" value="0.8" step="0.1"/>
+    <button onclick="setAlpha()">Set Alpha</button>
+    <br><br>
+    <span style="padding-left:15px;"></span>
+    <input id="TransTextControl" style="width:50px;padding-left: 5px" type="number" value="0.7" step="0.1"/>
+    <button onclick="setTransparency()">Set Transparency</button>
+    <br><br>
+</div>
+<link rel="stylesheet" href="libs/leaflet.css"/>
+<link rel="stylesheet" type="text/css" href="libs/leaflet-openweathermap.css"/>
+<style>
+    .leaflet-div-icon {
+        border-radius: 50%;
+        behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+        background: rgba(0, 0, 0, 0);
+        border: 1px solid #aaa;
+    }
+</style>
+<script src="libs/leaflet.js"></script>
+<script src="libs/leaflet_canvas_layer.js"></script>
+<script src="libs/L.CanvasOverlay.js"></script>
+<script type="text/javascript" src="libs/leaflet-openweathermap.js"></script>
+<script src="border-geos/wr-geo.js" charset="utf-8"></script>
+<script src="libs/angular.min.js"></script>
+<script src="libs/dirPagination.js"></script>
+<script src="sources-table.js" charset="utf-8"></script>
+<script src="sources.js" charset="utf-8"></script>
+<script src="libs/rgbhsv.js" charset="utf-8"></script>
+
+<script src="libs/jquery.min.js" charset="utf-8"></script>
+<script src="timeFrames.js" charset="utf-8"></script>
+<script src="libs/csvToArray.js" charset="utf-8"></script>
+<script src="CSVReader.js" charset="utf-8"></script>
+<script src="playCached.js" charset="utf-8"></script>
+<script src="playFromCSVAsync.js" charset="utf-8"></script>
+<script src="playFetched.js" charset="utf-8"></script>
+<script src="index-csv.js" charset="utf-8"></script>
+<script src="index-circles.js"></script>
+</body>
+</html>
