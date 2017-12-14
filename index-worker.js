@@ -46,7 +46,7 @@ var myIcon = L.divIcon({
     html: ''
 });
 for (var i = 0; i < sources.length; i++) {
-    markers.push(L.marker([sources[i][0], sources[i][1]], {icon: myIcon}).bindPopup((i+1) + ". " + sources[i][5] + " " + sources[i][3] + " " + sources[i][4] + " kV"));
+    markers.push(L.marker([sources[i][0], sources[i][1]], {icon: myIcon}).bindPopup((i + 1) + ". " + sources[i][5] + " " + sources[i][3] + ", " + (sources[i][4] * sources[i][2]).toFixed(2) + " kV"));
 }
 var sourceMarkersLayer = L.layerGroup(markers);
 sourceMarkersLayer.addTo(leafletMap);
