@@ -1,6 +1,7 @@
 var frameTimingVar_;
 var frameToFetch_ = 0;
 var framesToIncrement_ = 5;
+var videoPlayInterval_ = 200;
 
 //Jump to a frame
 function jumpToFrame(framenumber) {
@@ -11,6 +12,7 @@ function jumpToFrame(framenumber) {
 
 function jumpToFrameGUI() {
     jumpToFrame(document.getElementById("jumpToFrameInput").value);
+    getFromFrames();
 }
 
 //set frame rate
@@ -27,9 +29,6 @@ function setFrameRateGUI() {
 //Timing function
 function startFrameFetching() {
     //videoCanvas_.getContext("2d").clearRect(0, 0, borderCanvasLayer.getgetCanvas().width, borderCanvasLayer.getgetCanvas().height);
-    cachedFrames_ = [];
-    cachedTimes_ = [];
-    cachedSources_ = [];
     pauseFrameFetching();
     console.log("Starting Frame Data Fetch", "info");
     frameTimingVar_ = setInterval(getFromFrames, videoPlayInterval_);
@@ -41,12 +40,6 @@ function pauseFrameFetching() {
     console.log("Pausing Frame Data Fetch", "warning");
     document.getElementById("playbackStatusPaused").innerHTML = "\t(PlayBack Paused)";
     clearInterval(frameTimingVar_);
-    document.getElementById("videoTimeSlider").min = 0;
-    document.getElementById("videoTimeSlider").max = cachedTimes_.length - 1;
-    document.getElementById("videoTimeSlider").value = 0;
-    var hours = Math.floor((cachedTimes_[0]) / 60);
-    var timeStringToDisplay = FormatNumberLength(hours, 2) + ":" + FormatNumberLength((cachedTimes_[0] - hours * 60), 2) + " Hrs";
-    document.getElementById("videoTimeString").innerHTML = timeStringToDisplay;
 }
 
 var isFrameBusy_ = false;
@@ -60,6 +53,7 @@ function getFromFrames() {
     //express frame fetch start
     //document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
     var frameData = timeFrames.frames[frameToFetch_];
+    document.getElementById('videoTimeSlider').value = frameToFetch_;
     //MODIFY THE sources ARRAY from pointsArray
     for (var i = 0; i < Math.min(frameData.length, sources.length); i++) {
         if (frameData[i] == 0) {
@@ -69,7 +63,6 @@ function getFromFrames() {
         }
     }
     angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
-    cachedSources_.push(sources);
     for (var i = 0; i < sources.length; i++) {
         var tempPu = sources[i][2];
         if (tempPu > hotPU_) {
@@ -85,8 +78,6 @@ function getFromFrames() {
     var timeStringToDisplay = FormatNumberLength(hours, 2) + ":" + FormatNumberLength((frameToFetch_ - hours * 60), 2) + " Hrs";
     document.getElementById("playbackStatus").innerHTML = timeStringToDisplay;
     document.getElementById("over_map").innerHTML = timeStringToDisplay;
-    cachedFrames_.push(layer.canvas().getContext("2d").getImageData(0, 0, layer.canvas().width, layer.canvas().height));
-    cachedTimes_.push(frameToFetch_);
 
     frameToFetch_ += framesToIncrement_;
     document.getElementById("playbackStatusPaused").innerHTML = "";
@@ -106,6 +97,12 @@ function getIsFrameBusy() {
 //isBusy setter
 function setIsFrameBusy(val) {
     isFrameBusy_ = val;
+}
+
+function updateVideoTime() {
+    var sliderVal = document.getElementById("videoTimeSlider").value;
+    jumpToFrame(sliderVal);
+    getFromFrames();
 }
 
 function FormatNumberLength(num, length) {

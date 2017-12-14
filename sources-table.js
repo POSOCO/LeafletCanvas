@@ -34,5 +34,5 @@ angular.module('voltageSortApp', ['angularUtils.directives.dirPagination'])
         };
 
         //set page size
-        $scope.pageSize = 16;
+        $scope.pageSize = 15;
     });

@@ -20,63 +20,67 @@ var leafletMap = L.map('map').setView([21.14599216495789, 76.343994140625], 6);
 // create geoJSON svg border todo try this
 var geoBorder = L.geoJson(wrBorderGeo, {
     style: {
-        "color": "#aaaaaa",
-        "weight": 0,
-        "opacity": 0.65
+        "fillColor": "#111111",
+        color:"#aaaaaa",
+        "weight": 1,
+        "fillOpacity": 0.5
     }
 }).addTo(leafletMap);
 
 // Initialise the main plotting canvas
-var borderCanvasLayer = L.canvasOverlay()
+var layer = L.canvasOverlay()
     .params({})
-    .drawing(drawingOnCanvas)
-    .addTo(leafletMap);
-
-/*
- // Initialise the masking canvas
- var maskCanvasLayer = L.canvasOverlay()
- .params({"stateShapes": [wrBorderGeo.features]})
- .drawing(drawingOnMask)
- .addTo(leafletMap);
- */
-
-var CircleCanvasLayer = L.CanvasLayer.extend({
-    render: function () {
-        var canvas = this.getCanvas();
-        var ctx = canvas.getContext('2d');
-        // clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // get center from the map (projected)
-        for (var i = 0; i < sources.length; i++) {
-            var sourcePixelPnt = this._map.latLngToContainerPoint(new L.LatLng(sources[i][0], sources[i][1]));
-            if (sources[i][6] == "OK" || sources[i][6] == "GOOD") {
-                // The source is good
-                // todo see acceptable voltage values while plotting the circles
-                ctx.beginPath();
-                //todo the radius will change according to the voltage and the fill style will change as the error +ve or -ve
-                ctx.fillStyle = 'rgba(100,0,0,' + alpha_ + ')';
-                ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, 30, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = 'rgba(200,0,0,0.7)';
-                ctx.stroke();
-            } else {
-                // The source is not good
-                ctx.beginPath();
-                //todo the radius will change according to the voltage and the fill style will change as the error +ve or -ve
-                ctx.fillStyle = 'rgba(100,100,0,' + alpha_ + ')';
-                ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, 10, 0, 2 * Math.PI);
-                ctx.fill();
-            }
-        }
-
-    }
-});
-var layer = new CircleCanvasLayer();
+    .drawing(drawingOnCanvas);
 layer.addTo(leafletMap);
 
+
+/**
+ * Canvas Overlay Drawing function for main canvas
+ * @param canvasOverlay - The canvas layer
+ * @param params - params provided to the drawing function by the canvas layer.  Additional user params can be found at params.options
+ */
+function drawingOnCanvas(canvasOverlay, params) {
+    var canvas = this.canvas();
+    var ctx = canvas.getContext('2d');
+    // clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // get center from the map (projected)
+    for (var i = 0; i < sources.length; i++) {
+        var sourcePixelPnt = this._map.latLngToContainerPoint(new L.LatLng(sources[i][0], sources[i][1]));
+        var zoomLevel = this._map.getZoom();
+        if (sources[i][6] == "OK" || sources[i][6] == "GOOD") {
+            // The source is good
+            // todo see acceptable voltage values while plotting the circles
+            var sourceVoltagePUError = sources[i][2] - 1;
+            if (sourceVoltagePUError > 0.8) {
+                sourceVoltagePUError = 0;
+            }
+            if (sourceVoltagePUError < -0.8) {
+                sourceVoltagePUError = 0;
+            }
+            var circleColor = 'rgba(24,145,228,' + transparency_ + ')';
+            if (sourceVoltagePUError > 0) {
+                circleColor = 'rgba(200,100,0,' + transparency_ + ')';
+            }
+            ctx.beginPath();
+            ctx.fillStyle = circleColor;
+            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, alpha_ * Math.abs(sourceVoltagePUError) * Math.pow(2, zoomLevel), 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = circleColor;
+            ctx.stroke();
+        } else {
+            // The source is not good
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(100,100,0,' + alpha_ + ')';
+            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, Math.pow(2, zoomLevel) * 0.1, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+    }
+}
+
 // Initialising the videoPlayer Canvas
-videoCanvasCtx_ = layer.getCanvas().getContext("2d");
+videoCanvasCtx_ = layer.canvas().getContext("2d");
 
 // draw markers for sources on a marker layer
 var markers = [];
@@ -95,6 +99,7 @@ var hotPU_ = 1.05;
 var coolPU_ = 0.95;
 var alpha_ = (document.getElementById("alphaTextControl") != null) ? Number(document.getElementById("alphaTextControl").value) : 0.5;
 var transparency_ = (document.getElementById("TransTextControl") != null) ? Number(document.getElementById("TransTextControl").value) : 0.4;
+
 
 // Getting OpenWeatherMapOverlays
 var clouds = L.OWM.clouds({showLegend: false, opacity: 0.5});
@@ -134,15 +139,6 @@ L.control.layers(baseMaps, overlayMaps).addTo(leafletMap);
 
 // Start plotting the map
 layer.redraw();
-
-/**
- * Canvas Overlay Drawing function for main canvas
- * @param canvasOverlay - The canvas layer
- * @param params - params provided to the drawing function by the canvas layer.  Additional user params can be found at params.options
- */
-function drawingOnCanvas(canvasOverlay, params) {
-
-}
 
 /**
  * Sets the global alpha variable from UI
