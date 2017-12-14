@@ -21,7 +21,7 @@ var leafletMap = L.map('map').setView([21.14599216495789, 76.343994140625], 6);
 var geoBorder = L.geoJson(wrBorderGeo, {
     style: {
         "fillColor": "#111111",
-        color:"#aaaaaa",
+        color: "#aaaaaa",
         "weight": 1,
         "fillOpacity": 0.5
     }
@@ -44,10 +44,9 @@ function drawingOnCanvas(canvasOverlay, params) {
     var ctx = canvas.getContext('2d');
     // clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // get center from the map (projected)
+    var scalingFactor = Math.pow(2, this._map.getZoom()) * alpha_;
     for (var i = 0; i < sources.length; i++) {
         var sourcePixelPnt = this._map.latLngToContainerPoint(new L.LatLng(sources[i][0], sources[i][1]));
-        var zoomLevel = this._map.getZoom();
         if (sources[i][6] == "OK" || sources[i][6] == "GOOD") {
             // The source is good
             // todo see acceptable voltage values while plotting the circles
@@ -64,7 +63,7 @@ function drawingOnCanvas(canvasOverlay, params) {
             }
             ctx.beginPath();
             ctx.fillStyle = circleColor;
-            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, alpha_ * Math.abs(sourceVoltagePUError) * Math.pow(2, zoomLevel), 0, 2 * Math.PI);
+            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, scalingFactor * Math.abs(sourceVoltagePUError), 0, 2 * Math.PI);
             ctx.fill();
             ctx.lineWidth = 1;
             ctx.strokeStyle = circleColor;
@@ -73,7 +72,7 @@ function drawingOnCanvas(canvasOverlay, params) {
             // The source is not good
             ctx.beginPath();
             ctx.fillStyle = 'rgba(100,100,0,' + alpha_ + ')';
-            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, Math.pow(2, zoomLevel) * 0.1, 0, 2 * Math.PI);
+            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, scalingFactor * 0.01, 0, 2 * Math.PI);
             ctx.fill();
         }
     }
@@ -147,6 +146,7 @@ function setAlpha() {
     var temp = document.getElementById("alphaTextControl").value;
     if (!isNaN(temp)) {
         alpha_ = +temp;
+        layer.redraw();
     }
 }
 
@@ -157,6 +157,7 @@ function setTransparency() {
     var temp = document.getElementById("TransTextControl").value;
     if (!isNaN(temp)) {
         transparency_ = +temp;
+        layer.redraw();
     }
 }
 
