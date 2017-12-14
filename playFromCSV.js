@@ -61,7 +61,7 @@ function getFromFrames() {
     //document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
     var frameData = timeFrames.frames[frameToFetch_];
     //MODIFY THE sources ARRAY from pointsArray
-    for (var i = 0; i < frameData.length; i++) {
+    for (var i = 0; i < Math.min(frameData.length, sources.length); i++) {
         if (frameData[i] == 0) {
             sources[i][2] = 1;
         } else {
