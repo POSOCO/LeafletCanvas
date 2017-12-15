@@ -72,9 +72,10 @@ function getFromPointsDataServerForDate(dateString) {
         return;
     }
     angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
-    var fromTime = new Date();
-    if (dateString != "") {
-        fromTime = new Date(dateString + "T00:00:00");
+    var fromTime = new Date(dateString);
+    if (dateString == "") {
+        var tempTime = new Date();
+        fromTime = new Date(makeTwoDigits(tempTime.getFullYear()) + "-" + makeTwoDigits(tempTime.getMonth() + 1) + "-" + makeTwoDigits(tempTime.getDate()));
     }
     var fromTimeStr = makeTwoDigits(fromTime.getDate()) + "/" + makeTwoDigits(fromTime.getMonth() + 1) + "/" + fromTime.getFullYear() + "/" + makeTwoDigits(fromTime.getHours()) + ":" + makeTwoDigits(fromTime.getMinutes()) + ":00";
     var toTime = new Date(fromTime.getTime() + 86400000);
@@ -98,9 +99,9 @@ function getFromPointsDataServerForDate(dateString) {
                     //stub
                     for (var k = 0; k < Math.min(timeFrames.frames.length, pointData.length); k++) {
                         timeFrames.frames[k][iter] = +pointData[k]["dval"];
+                        timeFrames.frames_status[k][iter] = pointData[k]["status"];
                     }
                     //todo maintain status frames also
-                    sources[iter][6] = "OK";
                     //For now we are just logging the data fetched from server
                     //console.log(pointData);
                     //console.log(JSON.stringify(pointData, null, '\t'));

@@ -56,22 +56,22 @@ function getFromFrames() {
     document.getElementById('videoTimeSlider').value = frameToFetch_;
     //MODIFY THE sources ARRAY from pointsArray
     for (var i = 0; i < Math.min(frameData.length, sources.length); i++) {
-        if (frameData[i] == 0) {
-            sources[i][2] = 1;
-        } else {
-            sources[i][2] = frameData[i] / sources[i][4];
-        }
+        sources[i][2] = frameData[i] / sources[i][4];
+        sources[i][6] = timeFrames.frames_status[frameToFetch_][i];
     }
     angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
-    for (var i = 0; i < sources.length; i++) {
-        var tempPu = sources[i][2];
-        if (tempPu > hotPU_) {
-            tempPu = hotPU_;
-        } else if (tempPu < coolPU_) {
-            tempPu = coolPU_;
-        }
-        sources[i][2] = tempPu;
-    }
+    /*
+     // Not needed since it is handled at drawing function itself
+     for (var i = 0; i < sources.length; i++) {
+     var tempPu = sources[i][2];
+     if (tempPu > hotPU_) {
+     tempPu = hotPU_;
+     } else if (tempPu < coolPU_) {
+     tempPu = coolPU_;
+     }
+     sources[i][2] = tempPu;
+     }
+     */
     //RUN the plotting algorithm
     layer.redraw();
     var hours = Math.floor((frameToFetch_) / 60);
