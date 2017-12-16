@@ -23,6 +23,7 @@ window.onload = function () {
             timeFrames.frames_status[i].push("OK");
         }
     }
+	startFetching();
 };
 
 function readFramesFromCSV(pmuSourcesArray) {

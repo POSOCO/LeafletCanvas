@@ -12,7 +12,7 @@ angular.module('voltageSortApp', ['angularUtils.directives.dirPagination'])
                     continue;
                 }
                 var source = sourcesArray[i];
-                if (source[6] != "OK" && source[6] != "GOOD") {
+                if ((source[6] != "OK" && source[6] != "GOOD") || source[2] == Infinity) {
                     continue;
                 }
                 $scope.sources.push({
@@ -34,5 +34,5 @@ angular.module('voltageSortApp', ['angularUtils.directives.dirPagination'])
         };
 
         //set page size
-        $scope.pageSize = 15;
+        $scope.pageSize = 20;
     });

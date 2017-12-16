@@ -33,7 +33,7 @@ function getFromPointsDataServer() {
     //express server fetch start
     //document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
     for (var i = 0; i < sources.length; i++) {
-        $.get("http://localhost:62448/api/values/real?pnt=" + sources[i][3], (function (iterInput) {
+        $.get(document.getElementById("serverBaseAddressInput").value + "/api/values/real?pnt=" + sources[i][3], (function (iterInput) {
             var iter = iterInput;
             return function (data, status) {
 
@@ -48,7 +48,7 @@ function getFromPointsDataServer() {
                     sources[iter][2] = (+pointData["dval"]) / sources[iter][4];
                     sources[iter][6] = pointData["status"];
                     //For now we are just logging the data fetched from server
-                    //console.log(pointData);
+                    // console.log(pointData);
                     //console.log(JSON.stringify(pointData, null, '\t'));
                 }
                 if (iter == sources.length - 1) {
@@ -63,7 +63,7 @@ function getFromPointsDataServer() {
 
 
 function fetchDataForDate() {
-    getFromPointsDataServerForDate(document.getElementById("fetchDateInput").innerHTML);
+    getFromPointsDataServerForDate(document.getElementById("fetchDateInput").value);
 }
 
 //Timing function
@@ -72,11 +72,13 @@ function getFromPointsDataServerForDate(dateString) {
         return;
     }
     angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
-    var fromTime = new Date(dateString);
+    
     if (dateString == "") {
         var tempTime = new Date();
-        fromTime = new Date(makeTwoDigits(tempTime.getFullYear()) + "-" + makeTwoDigits(tempTime.getMonth() + 1) + "-" + makeTwoDigits(tempTime.getDate()));
-    }
+        var fromTime = new Date(makeTwoDigits(tempTime.getFullYear()) + "-" + makeTwoDigits(tempTime.getMonth() + 1) + "-" + makeTwoDigits(tempTime.getDate())+"T00:00:00");
+    } else{
+		fromTime = new Date(dateString+"T00:00:00");
+	}
     var fromTimeStr = makeTwoDigits(fromTime.getDate()) + "/" + makeTwoDigits(fromTime.getMonth() + 1) + "/" + fromTime.getFullYear() + "/" + makeTwoDigits(fromTime.getHours()) + ":" + makeTwoDigits(fromTime.getMinutes()) + ":00";
     var toTime = new Date(fromTime.getTime() + 86400000);
     var toTimeStr = makeTwoDigits(toTime.getDate()) + "/" + makeTwoDigits(toTime.getMonth() + 1) + "/" + toTime.getFullYear() + "/" + makeTwoDigits(toTime.getHours()) + ":" + makeTwoDigits(fromTime.getMinutes()) + ":00";
