@@ -28,6 +28,8 @@ function setFrameRateGUI() {
 
 //Timing function
 function startFrameFetching() {
+    // stop real time fetching also
+    pauseFetching();
     //videoCanvas_.getContext("2d").clearRect(0, 0, borderCanvasLayer.getgetCanvas().width, borderCanvasLayer.getgetCanvas().height);
     pauseFrameFetching();
     console.log("Starting Frame Data Fetch", "info");
@@ -78,7 +80,8 @@ function getFromFrames() {
     var timeStringToDisplay = FormatNumberLength(hours, 2) + ":" + FormatNumberLength((frameToFetch_ - hours * 60), 2) + " Hrs";
     document.getElementById("playbackStatus").innerHTML = timeStringToDisplay;
     document.getElementById("over_map").innerHTML = timeStringToDisplay;
-
+    // update the date string
+    modifyDateString(timeFrames.dateString_);
     frameToFetch_ += framesToIncrement_;
     document.getElementById("playbackStatusPaused").innerHTML = "";
     if (frameToFetch_ >= 1440) {

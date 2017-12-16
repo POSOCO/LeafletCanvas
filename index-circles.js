@@ -40,6 +40,7 @@ layer.addTo(leafletMap);
  * @param params - params provided to the drawing function by the canvas layer.  Additional user params can be found at params.options
  */
 function drawingOnCanvas(canvasOverlay, params) {
+    var renderBeginTime = new Date();
     var canvas = this.canvas();
     var ctx = canvas.getContext('2d');
     // clear canvas
@@ -84,6 +85,7 @@ function drawingOnCanvas(canvasOverlay, params) {
             ctx.fill();
         }
     }
+    document.getElementById("refresh-time").innerHTML = (new Date() - renderBeginTime);
 }
 
 // draw markers for sources on a marker layer
@@ -110,7 +112,7 @@ var hotPU_ = 1.05;
 var coolPU_ = 0.95;
 var alpha_ = (document.getElementById("alphaTextControl") != null) ? Number(document.getElementById("alphaTextControl").value) : 0.5;
 var transparency_ = (document.getElementById("TransTextControl") != null) ? Number(document.getElementById("TransTextControl").value) : 0.4;
-
+var renderStrategy_ = (document.getElementById("renderStrategySelect") != null) ? document.getElementById("renderStrategySelect").value : "quadrilateral";
 
 // Getting OpenWeatherMapOverlays
 var clouds = L.OWM.clouds({showLegend: false, opacity: 0.5});
@@ -160,6 +162,13 @@ function setAlpha() {
         alpha_ = +temp;
         layer.redraw();
     }
+}
+
+/**
+ * Sets the global render Strategy variable from UI
+ */
+function setRenderStrategy() {
+    renderStrategy_ = document.getElementById("renderStrategySelect").value;
 }
 
 /**

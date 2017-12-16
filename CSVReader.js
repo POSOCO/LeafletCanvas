@@ -40,11 +40,13 @@ function CSVReader() {
         var file = this.filesArray[this.fileIterator];
         reader.onload = function (e) {
             this.pmuSourcesArray = CSVToArray(reader.result);
-            modifyDateString(this.pmuSourcesArray[3][0]);
+            // modifyDateString(this.pmuSourcesArray[3][0]);
             this.pmuSourcesArray = readFramesFromCSV(this.pmuSourcesArray);
             console.log("The parsed pmu voltage points file is ");
             console.log(this.pmuSourcesArray);
             timeFrames.frames = this.pmuSourcesArray;
+            // set the date of timeFrames
+            timeFrames.dateString_ = this.pmuSourcesArray[3][0];
             this.pmuSourcesArray = [];
             this.loadNext();
         }.bind(this);

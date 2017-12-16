@@ -23,7 +23,9 @@ window.onload = function () {
             timeFrames.frames_status[i].push("OK");
         }
     }
-	startFetching();
+    // initialize the dateString of timeFrames
+    timeFrames.dateString_ = "dd-mm-yyyy";
+    startFetching();
 };
 
 function readFramesFromCSV(pmuSourcesArray) {

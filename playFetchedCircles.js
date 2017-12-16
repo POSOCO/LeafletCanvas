@@ -4,6 +4,8 @@ var isPlayingReal_ = false;
 
 //Timing function
 function startFetching() {
+    // stop Frames playing also
+    pauseFrameFetching();
     pauseFetching();
     console.log("Starting Server Data Fetch", "info");
     isPlayingReal_ = true;
@@ -32,6 +34,8 @@ function getFromPointsDataServer() {
     setIsBusy(true);
     //express server fetch start
     //document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
+    // todo use async.series
+    // the isBusy does not serve the purpose at all which can be resolved by async.series
     for (var i = 0; i < sources.length; i++) {
         $.get(document.getElementById("serverBaseAddressInput").value + "/api/values/real?pnt=" + sources[i][3], (function (iterInput) {
             var iter = iterInput;
@@ -72,13 +76,13 @@ function getFromPointsDataServerForDate(dateString) {
         return;
     }
     angular.element(document.getElementById('voltage-report')).scope().updateSources(sources);
-    
-    if (dateString == "") {
+    var fromDateStr = dateString.trim();
+    if (fromDateStr == "") {
         var tempTime = new Date();
-        var fromTime = new Date(makeTwoDigits(tempTime.getFullYear()) + "-" + makeTwoDigits(tempTime.getMonth() + 1) + "-" + makeTwoDigits(tempTime.getDate())+"T00:00:00");
-    } else{
-		fromTime = new Date(dateString+"T00:00:00");
-	}
+        fromDateStr = makeTwoDigits(tempTime.getFullYear()) + "-" + makeTwoDigits(tempTime.getMonth() + 1) + "-" + makeTwoDigits(tempTime.getDate());
+
+    }
+    var fromTime = new Date(fromDateStr + "T00:00:00");
     var fromTimeStr = makeTwoDigits(fromTime.getDate()) + "/" + makeTwoDigits(fromTime.getMonth() + 1) + "/" + fromTime.getFullYear() + "/" + makeTwoDigits(fromTime.getHours()) + ":" + makeTwoDigits(fromTime.getMinutes()) + ":00";
     var toTime = new Date(fromTime.getTime() + 86400000);
     var toTimeStr = makeTwoDigits(toTime.getDate()) + "/" + makeTwoDigits(toTime.getMonth() + 1) + "/" + toTime.getFullYear() + "/" + makeTwoDigits(toTime.getHours()) + ":" + makeTwoDigits(fromTime.getMinutes()) + ":00";
@@ -103,7 +107,6 @@ function getFromPointsDataServerForDate(dateString) {
                         timeFrames.frames[k][iter] = +pointData[k]["dval"];
                         timeFrames.frames_status[k][iter] = pointData[k]["status"];
                     }
-                    //todo maintain status frames also
                     //For now we are just logging the data fetched from server
                     //console.log(pointData);
                     //console.log(JSON.stringify(pointData, null, '\t'));
