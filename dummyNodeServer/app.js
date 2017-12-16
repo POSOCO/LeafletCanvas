@@ -10,5 +10,6 @@ var app = http.createServer(function (req, res) {
         resArray.push({dval: Math.random() * 1000, status: 'OK'});
     }
     res.end(JSON.stringify(resArray, null, 3));
+	//res.end(JSON.stringify({dval:Math.random() * 1000, status: 'OK'}, null, 3));
 });
 app.listen(62448);

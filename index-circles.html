@@ -14,12 +14,13 @@
 <div class="map-container">
     <div id="map"></div>
     <!--<canvas id="maskCanvas"></canvas>-->
-    <div style="position: absolute;display: inline-block;font-style: italic;color: #aaaaaa;z-index: 1000;width: 50%;height: 30px;bottom: 0px;">
-        <span>Refresh time - </span><span id="refresh-time">NA</span><span> milli secs</span>
+    <div style="position: absolute;display: inline-block;font-style: italic;color: #aaaaaa;z-index: 1000;width: 50%;height: 40px;bottom: 0px;">
+        <span>Render time - </span><span id="refresh-time">NA</span><span> msecs</span><br>
+        <span>Fetch time - </span><span id="fetch-time">NA</span><span> msecs</span>
     </div>
     <p id="over_map" style="font-size: 30px;color: red">00:00 Hrs</p>
 
-    <span id="over_map_date" style="font-style: italic;color: #aaaaaa">Voltage contour on 24-10-2016</span>
+    <span id="over_map_date" style="font-style: italic;color: #aaaaaa">Voltage contour on dd-mm-yyyy</span>
 </div>
 
 <div class="container" ng-app="voltageSortApp" ng-controller="voltageSortController" id="voltage-report"
@@ -165,6 +166,7 @@
 <script src="libs/rgbhsv.js" charset="utf-8"></script>
 
 <script src="libs/jquery.min.js" charset="utf-8"></script>
+<script src="libs/async.min.js" charset="utf-8"></script>
 <script src="timeFrames.js" charset="utf-8"></script>
 <script src="libs/csvToArray.js" charset="utf-8"></script>
 <script src="CSVReader.js" charset="utf-8"></script>
