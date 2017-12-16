@@ -45,7 +45,35 @@ function drawingOnCanvas(canvasOverlay, params) {
     var ctx = canvas.getContext('2d');
     // clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    var scalingFactor = Math.pow(2, this._map.getZoom()) * alpha_;
+    var mapZoomScaling = Math.pow(2, this._map.getZoom());
+    var scalingFactor = mapZoomScaling * alpha_;
+    var strategyFunction = null;
+    if (renderStrategy_ == "power6") {
+        strategyFunction = function (x) {
+            return x * x * x * x * x * x;
+        }
+    } else if (renderStrategy_ == "power5") {
+        strategyFunction = function (x) {
+            return x * x * x * x * x;
+        }
+    } else if (renderStrategy_ == "power4") {
+        strategyFunction = function (x) {
+            return x * x * x * x;
+        }
+    } else if (renderStrategy_ == "cubic") {
+        strategyFunction = function (x) {
+            return Math.abs(x * x * x);
+        }
+    } else if (renderStrategy_ == "quadrilateral") {
+        strategyFunction = function (x) {
+            return x * x;
+        }
+    } else {
+        strategyFunction = function (x) {
+            return Math.abs(x);
+        }
+    }
+    var hideBandVoltages = document.getElementById("hideBandVoltagesChkBox").checked;
     for (var i = 0; i < sources.length; i++) {
         var sourcePixelPnt = this._map.latLngToContainerPoint(new L.LatLng(sources[i][0], sources[i][1]));
         if (sources[i][6] == "OK" || sources[i][6] == "GOOD") {
@@ -54,11 +82,15 @@ function drawingOnCanvas(canvasOverlay, params) {
                 // The source value is abnormal
                 ctx.beginPath();
                 ctx.fillStyle = 'rgba(120,0,0,' + alpha_ + ')';
-                ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, scalingFactor * 0.008, 0, 2 * Math.PI);
+                ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, mapZoomScaling * 0.04, 0, 2 * Math.PI);
                 ctx.fill();
                 continue;
             }
             // The source is good
+            if (hideBandVoltages && (sourceVoltagePUError + 1) < hotPU_ && (sourceVoltagePUError + 1) > coolPU_) {
+                // No need to plot this source
+                continue;
+            }
             // Limit the sourceVoltagePUError to +-0.06 for plotting
             if (sourceVoltagePUError > 0.06) {
                 sourceVoltagePUError = 0.06;
@@ -66,13 +98,15 @@ function drawingOnCanvas(canvasOverlay, params) {
             if (sourceVoltagePUError < -0.06) {
                 sourceVoltagePUError = -0.06;
             }
+
             var circleColor = 'rgba(24,145,228,' + transparency_ + ')';
             if (sourceVoltagePUError > 0) {
                 circleColor = 'rgba(200,100,0,' + transparency_ + ')';
             }
             ctx.beginPath();
             ctx.fillStyle = circleColor;
-            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, scalingFactor * Math.abs(sourceVoltagePUError), 0, 2 * Math.PI);
+            var circleRadius = 0;
+            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, scalingFactor * strategyFunction(sourceVoltagePUError), 0, 2 * Math.PI);
             ctx.fill();
             ctx.lineWidth = 1;
             ctx.strokeStyle = circleColor;
@@ -81,7 +115,7 @@ function drawingOnCanvas(canvasOverlay, params) {
             // The source is not good
             ctx.beginPath();
             ctx.fillStyle = 'rgba(120,120,0,' + alpha_ + ')';
-            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, scalingFactor * 0.008, 0, 2 * Math.PI);
+            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, mapZoomScaling * 0.04, 0, 2 * Math.PI);
             ctx.fill();
         }
     }
@@ -108,8 +142,8 @@ var sourceMarkersLayer = L.layerGroup(markers);
 sourceMarkersLayer.addTo(leafletMap);
 
 // Initialise the global variables for algorithm and UI
-var hotPU_ = 1.05;
-var coolPU_ = 0.95;
+var hotPU_ = (document.getElementById("highPuInput") != null) ? Number(document.getElementById("highPuInput").value) : 1.05;
+var coolPU_ = (document.getElementById("lowPuInput") != null) ? Number(document.getElementById("lowPuInput").value) : 0.95;
 var alpha_ = (document.getElementById("alphaTextControl") != null) ? Number(document.getElementById("alphaTextControl").value) : 0.5;
 var transparency_ = (document.getElementById("TransTextControl") != null) ? Number(document.getElementById("TransTextControl").value) : 0.4;
 var renderStrategy_ = (document.getElementById("renderStrategySelect") != null) ? document.getElementById("renderStrategySelect").value : "quadrilateral";
@@ -169,6 +203,7 @@ function setAlpha() {
  */
 function setRenderStrategy() {
     renderStrategy_ = document.getElementById("renderStrategySelect").value;
+    layer.redraw();
 }
 
 /**
@@ -188,5 +223,26 @@ function setTransparency() {
 function resetMapView() {
     if (typeof leafletMap != 'undefined') {
         leafletMap.setView([21.14599216495789, 76.343994140625], 6);
+    }
+}
+
+function toggleBandVoltages() {
+    layer.redraw();
+}
+
+function setHighLowPU() {
+    var temp = document.getElementById("highPuInput").value;
+    var changesMade = false;
+    if (!isNaN(temp)) {
+        hotPU_ = +temp;
+        changesMade = true;
+    }
+    temp = document.getElementById("lowPuInput").value;
+    if (!isNaN(temp)) {
+        coolPU_ = +temp;
+        changesMade = true;
+    }
+    if (changesMade) {
+        layer.redraw();
     }
 }

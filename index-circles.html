@@ -107,6 +107,8 @@
     <span id="playbackStatus"></span>
     <span id="playbackStatusPaused"></span>
     <span style="padding-left:20px;"></span>
+    <input type="checkbox" id="hideBandVoltagesChkBox" onchange="toggleBandVoltages()">Hide Voltages within Band</input>
+    <span style="padding-left:20px;"></span>
     <input id="jumpToFrameInput" type="number" value="0" style="width:45px;padding-left: 5px"/>
     <button onclick="jumpToFrameGUI()">JUMP TO MINUTE</button>
     <span style="padding-left:20px;"></span>
@@ -127,19 +129,30 @@
     <button onclick="pauseFetching()">Stop_Real_Fetching</button>
     <br><br>
     <span style="padding-left:15px;"></span>
-    <input id="alphaTextControl" style="width:50px;padding-left: 5px" type="number" value="5" step="0.1"/>
+    <input id="alphaTextControl" style="width:50px;padding-left: 5px" type="number" value="100" step="0.1"/>
     <button onclick="setAlpha()">Set Multiplication Factor</button>
+    <span style="padding-left:15px;"></span>
+    <input id="TransTextControl" style="width:50px;padding-left: 5px" type="number" value="0.3" step="0.1"/>
+    <button onclick="setTransparency()">Set Transparency</button>
+    <br><br>
+    <span style="padding-left:15px;"></span>
+    <input id="lowPuInput" style="width:50px;padding-left: 5px" type="number" value="0.95" step="0.01"/>
+    <span style="padding-left:15px;"></span>
+    <input id="highPuInput" style="width:50px;padding-left: 5px" type="number" value="1.05" step="0.01"/>
+    <span style="padding-left:15px;"></span>
+    <button onclick="setHighLowPU()">Set Voltage Band</button>
+    <span style="padding-left:15px;"></span>
     <br><br>
     <span style="padding-left:15px;"></span>
     <select name="renderStrategySelect" id="renderStrategySelect">
         <option value="linear">Linear</option>
         <option value="quadrilateral" selected>Quadrilateral</option>
+        <option value="cubic">Cubic</option>
+        <option value="power4">Power 4</option>
+        <option value="power5">Power 5</option>
+        <option value="power6">Power 6</option>
     </select>
     <button onclick="setRenderStrategy()">Set Render Strategy</button>
-    <br><br>
-    <span style="padding-left:15px;"></span>
-    <input id="TransTextControl" style="width:50px;padding-left: 5px" type="number" value="0.3" step="0.1"/>
-    <button onclick="setTransparency()">Set Transparency</button>
     <br><br>
     <input type="text" value="http://wmrm0mc1:62448" id="serverBaseAddressInput">
     <!--<input type="text" value="http://wmrm0mc1:62448" id="serverBaseAddressInput">-->
