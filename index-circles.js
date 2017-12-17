@@ -82,7 +82,7 @@ function drawingOnCanvas(canvasOverlay, params) {
                 // The source value is abnormal
                 ctx.beginPath();
                 ctx.fillStyle = 'rgba(120,0,0,' + alpha_ + ')';
-                ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, mapZoomScaling * 0.04, 0, 2 * Math.PI);
+                ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, mapZoomScaling * 0.03, 0, 2 * Math.PI);
                 ctx.fill();
                 continue;
             }
@@ -115,7 +115,7 @@ function drawingOnCanvas(canvasOverlay, params) {
             // The source is not good
             ctx.beginPath();
             ctx.fillStyle = 'rgba(120,120,0,' + alpha_ + ')';
-            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, mapZoomScaling * 0.04, 0, 2 * Math.PI);
+            ctx.arc(sourcePixelPnt.x, sourcePixelPnt.y, mapZoomScaling * 0.03, 0, 2 * Math.PI);
             ctx.fill();
         }
     }
