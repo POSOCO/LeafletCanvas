@@ -17,7 +17,7 @@ var leafletMap = L.map('map').setView([21.14599216495789, 76.343994140625], 6);
 // adding tile layer to the map
 // mapStackTileLayer.addTo(leafletMap);
 
-// create geoJSON svg border todo try this
+// create geoJSON svg border
 var geoBorder = L.geoJson(wrBorderGeo, {
     style: {
         "fillColor": "#111111",
