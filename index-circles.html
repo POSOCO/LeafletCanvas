@@ -69,6 +69,22 @@
                     <span ng-show="sortType == 'puVoltage' && sortReverse" class="arrow-up"></span>
                 </a>
             </td>
+            <td>
+                <a class="sort-clicker" href="#"
+                   ng-click="sortType = ['brIn', '-puVoltage']; sortReverse = !sortReverse">
+                    BR_IN
+                    <span ng-show="sortType.toString() == 'brIn,-puVoltage' && !sortReverse" class="arrow-down"></span>
+                    <span ng-show="sortType.toString() == 'brIn,-puVoltage' && sortReverse" class="arrow-up"></span>
+                </a>
+            </td>
+            <td>
+                <a class="sort-clicker" href="#"
+                   ng-click="sortType = ['brOut', 'puVoltage']; sortReverse = !sortReverse">
+                    BR_OUT
+                    <span ng-show="sortType.toString() == 'brOut,puVoltage' && !sortReverse" class="arrow-down"></span>
+                    <span ng-show="sortType.toString() == 'brOut,puVoltage' && sortReverse" class="arrow-up"></span>
+                </a>
+            </td>
         </tr>
         </thead>
 

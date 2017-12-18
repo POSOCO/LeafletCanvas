@@ -15,18 +15,12 @@ window.onload = function () {
         }
         csvReader_.afterEachRead();
     });
-
-    // add the br in and out attributes to sources array
-    for(var i = 0; i < sources.length; i++){
-        sources[i][7] = 0;
-        sources[i][8] = 0;
+    makeBRsZero();
+    // fill the bus reactors array using the sources array
+    for (var i = 0; i < br_sources_g.length; i++) {
+        var src_iter = getSrcIndexByPntId(br_sources_g[i][7]);
+        br_sources_g[i][8] = src_iter;
     }
-
-	// fill the bus reactors array using the sources array
-	for(var i = 0; i < br_sources_g.length; i++){
-		var src_iter = getSrcIndexByPntId(br_sources_g[i][7]);
-		br_sources_g[i][8] = src_iter;
-	}
 
     // initialize all timeFrames status array also with all values as OK
     timeFrames.frames_status = [];
@@ -52,13 +46,13 @@ function modifyDateString(str) {
     document.getElementById("over_map_date").innerHTML = "Voltage contour for " + str.split(" ")[0];
 }
 
-function getSrcIndexByPntId(pntId){
-	var src_iter = null;
-	for(var i = 0; i < sources.length; i++){
-		if(sources[i][3] == pntId){
-			src_iter = i;
-			break;
-		}
-	}
-	return src_iter;
+function getSrcIndexByPntId(pntId) {
+    var src_iter = null;
+    for (var i = 0; i < sources.length; i++) {
+        if (sources[i][3] == pntId) {
+            src_iter = i;
+            break;
+        }
+    }
+    return src_iter;
 }

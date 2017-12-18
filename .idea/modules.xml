@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://E:/Nagasudhir/LeafletCanvas_new/.idea/LeafletCanvas.iml" filepath="E:/Nagasudhir/LeafletCanvas_new/.idea/LeafletCanvas.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/LeafletCanvas.iml" filepath="$PROJECT_DIR$/.idea/LeafletCanvas.iml" />
     </modules>
   </component>
 </project>
