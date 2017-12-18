@@ -2,6 +2,8 @@ var timingVar_;
 var isBusy_ = false;
 var isPlayingReal_ = false;
 
+var minMvarForOn_g = 5;
+
 //Timing function
 function startFetching() {
     // stop Frames playing also
@@ -28,19 +30,35 @@ function getFromPointsDataServer() {
     var present_Time = new Date();
     setIsBusy(true);
     //document.getElementById("wrapper").style.border = "2px solid rgb(0,255,0)";
-    var fetchScadaValue = function (iter, callback) {
+    var fetchScadaValue = function (iterIn, callback) {
         // todo check if source is an array and has at least 4 elements
+        var iter = iterIn;
+        var pntId = null;
+        if (iter < sources.length) {
+            pntId = sources[iter][3];
+        } else {
+            iter = iterIn - sources.length;
+            pntId = br_sources_g[iter][3];
+        }
         $.ajax({
-            url: document.getElementById("serverBaseAddressInput").value + "/api/values/real?pnt=" + sources[iter][3],
+            url: document.getElementById("serverBaseAddressInput").value + "/api/values/real?pnt=" + pntId,
             type: 'GET',
             success: function (data) {
                 var pointData = data;
-                //todo check if pointData['dval'] is a number
-                //MODIFY THE sources ARRAY from pointData
-                sources[iter][2] = (+pointData["dval"]) / sources[iter][4];
-                sources[iter][6] = pointData["status"];
-                // console.log(pointData);
-                //console.log(JSON.stringify(pointData, null, '\t'));
+                if (pointData != null) {
+                    //todo check if pointData['dval'] is a number
+                    if (iterIn < sources.length) {
+                        //MODIFY THE sources ARRAY from pointData
+                        sources[iter][2] = (+pointData["dval"]) / sources[iter][4];
+                        sources[iter][6] = pointData["status"];
+                    } else {
+                        //MODIFY THE br_sources ARRAY from pointData
+                        br_sources_g[iter][2] = (+pointData["dval"]);
+                        br_sources_g[iter][6] = pointData["status"];
+                    }
+                    // console.log(pointData);
+                    //console.log(JSON.stringify(pointData, null, '\t'));
+                }
                 callback(null, pointData);
             },
             error: function (textStatus, errorThrown) {
@@ -53,7 +71,7 @@ function getFromPointsDataServer() {
 
     /* Get the all scada values from API start */
     var sourceIterators = [];
-    for (var i = 0; i < sources.length; i++) {
+    for (var i = 0; i < (sources.length + br_sources_g.length); i++) {
         sourceIterators.push(i);
     }
     var fetchBeginTime = new Date();
@@ -67,6 +85,7 @@ function getFromPointsDataServer() {
             document.getElementById('videoTimeSlider').value = present_Time.getHours() * 60 + present_Time.getMinutes();
             // set the date string to today
             modifyDateString(makeTwoDigits(present_Time.getDate()) + "-" + makeTwoDigits(present_Time.getMonth() + 1) + "-" + present_Time.getFullYear());
+            updateNumBRs();
             // Render the Voltage Visualization
             layer.redraw();
         }
@@ -173,5 +192,23 @@ function makeTwoDigits(x) {
     }
     else {
         return x;
+    }
+}
+
+function updateNumBRs(){
+    for(var iter = 0; iter < br_sources_g.length; iter++){
+        // modify the sources br_in and out values
+        var brSourceIterator = br_sources_g[iter][8];
+        if (brSourceIterator != null) {
+            // if the source iterator is present, update the num brs in and out
+            // todo accommodate status also
+            if (br_sources_g[iter][2] >= minMvarForOn_g) {
+                // update num brs in
+                sources[brSourceIterator][7] += 1;
+            } else {
+                // update num brs out
+                sources[brSourceIterator][8] += 1;
+            }
+        }
     }
 }

@@ -16,6 +16,12 @@ window.onload = function () {
         csvReader_.afterEachRead();
     });
 
+    // add the br in and out attributes to sources array
+    for(var i = 0; i < sources.length; i++){
+        sources[i][7] = 0;
+        sources[i][8] = 0;
+    }
+
 	// fill the bus reactors array using the sources array
 	for(var i = 0; i < br_sources_g.length; i++){
 		var src_iter = getSrcIndexByPntId(br_sources_g[i][7]);
