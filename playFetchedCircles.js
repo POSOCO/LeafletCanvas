@@ -194,31 +194,3 @@ function makeTwoDigits(x) {
         return x;
     }
 }
-
-function updateNumBRs() {
-    makeBRsZero();
-    for (var iter = 0; iter < br_sources_g.length; iter++) {
-        // modify the sources br_in and out values
-        var brSourceIterator = br_sources_g[iter][8];
-        if (brSourceIterator != null) {
-            // if the source iterator is present, update the num brs in and out
-            if (br_sources_g[iter][6] == "OK" || br_sources_g[iter][6] == "GOOD") {
-                if (br_sources_g[iter][2] >= minMvarForOn_g) {
-                    // update num brs in
-                    sources[brSourceIterator][7] += 1;
-                } else {
-                    // update num brs out
-                    sources[brSourceIterator][8] += 1;
-                }
-            }
-        }
-    }
-}
-
-function makeBRsZero() {
-    // add the br in and out attributes to sources array
-    for (var i = 0; i < sources.length; i++) {
-        sources[i][7] = 0;
-        sources[i][8] = 0;
-    }
-}
