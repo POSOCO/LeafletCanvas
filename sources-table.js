@@ -35,6 +35,19 @@ angular.module('voltageSortApp', ['angularUtils.directives.dirPagination'])
             markers[temp].openPopup();
         };
 
+        $scope.hideShowVoltDiv = function (isShow, sourceIndex) {
+            if (isShow == true) {
+                //console.log("from show function");
+                $("#volt-hover-div")
+                    .css("display", "block");
+                showVoltData(sources[sourceIndex]);
+            } else {
+                //console.log("from hide function");
+                $("#volt-hover-div")
+                    .css("display", "none");
+            }
+        };
+
         //set page size
         $scope.pageSize = 15;
     });
