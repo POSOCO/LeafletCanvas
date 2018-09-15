@@ -101,7 +101,7 @@ function drawingOnCanvas(canvasOverlay, params) {
 
             var circleColor = 'rgba(24,145,228,' + transparency_ + ')';
             if (sourceVoltagePUError > 0) {
-                circleColor = 'rgba(200,100,0,' + transparency_ + ')';
+                circleColor = 'rgba(255,255,0,' + transparency_ + ')';
             }
             ctx.beginPath();
             ctx.fillStyle = circleColor;
@@ -255,7 +255,7 @@ function updateNumBRs() {
         if (brSourceIterator != null) {
             // if the source iterator is present, update the num brs in and out
             if (br_sources_g[iter][6] == "OK" || br_sources_g[iter][6] == "GOOD") {
-                if (br_sources_g[iter][2] >= minMvarForOn_g) {
+                if (Math.abs(br_sources_g[iter][2]) >= minMvarForOn_g) {
                     // update num brs in
                     sources[brSourceIterator][7] += 1;
                 } else {
